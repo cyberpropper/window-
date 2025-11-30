@@ -1,0 +1,3427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор мягких окон</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --bg-main: #e9f2fb;
+      --bg-card: #ffffff;
+      --blue: #2c7ef4;
+      --blue-soft: #dbeafe;
+      --border-soft: #d0d8e8;
+      --text-main: #1f2937;
+      --text-muted: #64748b;
+      --text-soft: #94a3b8;
+      --frame: #2a2f38;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+    }
+
+    /* ============ ЭКРАН ЛОГИНА ============ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    #login-box {
+      background: #fff;
+      padding: 22px 24px 20px;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(15,23,42,.18);
+      width: 300px;
+    }
+
+    #login-box h1 {
+      font-size: 18px;
+      margin: 0 0 6px;
+    }
+
+    #login-box p {
+      font-size: 12px;
+      margin: 0 0 14px;
+      color: var(--text-muted);
+    }
+
+    #login-box input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 7px 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    #login-box button {
+      width: 100%;
+      background: var(--blue);
+      border: none;
+      color: #fff;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #login-error {
+      color: #ef4444;
+      font-size: 12px;
+      min-height: 18px;
+      margin-bottom: 4px;
+    }
+
+    /* ============ ОСНОВНОЙ КАРКАС SOFTGLASS ============ */
+
+    #app {
+      display: none;
+    }
+
+    .soft-shell {
+      max-width: 1360px;
+      margin: 10px auto 20px;
+      padding: 0 12px 20px;
+    }
+
+    /* Верхняя голубая панель */
+    .soft-topbar {
+      height: 52px;
+      background: #f5f9ff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      margin-bottom: 10px;
+    }
+
+    .soft-topbar__left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .soft-topbar__menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .soft-topbar__menu-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .soft-topbar__menu-btn--primary {
+      background: #e0efff;
+      color: var(--blue);
+      border-color: #bfdbfe;
+      font-weight: 500;
+    }
+
+    .soft-topbar__right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .soft-topbar__cart {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .soft-topbar__cart-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--blue);
+      background: #e0efff;
+    }
+
+    .soft-topbar__user {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* Основная область: слева меню, справа рабочая зона */
+    .soft-main {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    /* ЛЕВОЕ ВЕРТИКАЛЬНОЕ МЕНЮ */
+    .soft-sidebar {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+      padding: 10px 0 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .soft-sidebar__title {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 0 6px 6px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 2px;
+    }
+
+    .soft-sidebar__items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      padding: 0 8px;
+    }
+
+    .soft-sidebar__item {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      background: #f3f4f6;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 8px;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: 0.12s ease;
+    }
+
+    .soft-sidebar__item-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #e5e7eb;
+    }
+
+    .soft-sidebar__item--active {
+      background: #e0efff;
+      border-color: #bfdbfe;
+      color: var(--blue);
+    }
+
+    /* ПРАВАЯ ЧАСТЬ: центральное окно + справа мастер вкладок */
+    .soft-work {
+      background: var(--bg-card);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+      padding: 14px 16px 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1.2fr);
+      gap: 12px;
+    }
+
+    /* Центральная панель с окном */
+    .soft-center {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-right: 1px solid #e5e7eb;
+      padding-right: 12px;
+    }
+
+    .soft-center__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+    }
+
+    .soft-center__title {
+      font-weight: 600;
+    }
+
+    .soft-center__counter {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .soft-drawing-wrapper {
+      background: #f9fbff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 14px 16px 16px;
+    }
+
+    .soft-drawing-top-scale,
+    .soft-drawing-bottom-scale {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .soft-drawing-main {
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #d7dce3;
+      padding: 8px;
+    }
+
+    /* Левая подпанель настроек в центре (форма + размеры + базовые настройки) */
+    .soft-center__grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .settings-card {
+      background: #f9fbff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px 12px;
+      font-size: 12px;
+    }
+
+    .settings-card h2 {
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+
+    .settings-card small {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .settings-field {
+      margin-bottom: 8px;
+    }
+
+    .settings-field label {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .settings-field input,
+    .settings-field select {
+      width: 100%;
+      font-size: 12px;
+      padding: 5px 7px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .settings-field-inline {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .settings-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      border-radius: 8px;
+      border: none;
+      color: #fff;
+      font-size: 12px;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .btn-ghost {
+      background: #eef1f6;
+      border-radius: 8px;
+      border: none;
+      color: #111827;
+      font-size: 12px;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .result-card {
+      position: relative;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      padding: 14px 16px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .result-card strong {
+      font-weight: 600;
+    }
+
+    .result-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+    }
+
+    .result-tab {
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      padding: 5px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #64748b;
+      transition: 0.18s ease;
+      font-weight: 500;
+    }
+
+    /* Активная вкладка — белая «таблетка» */
+    .result-tab--active {
+      background: #ffffff;
+      color: #1d4ed8;
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.35);
+    }
+
+
+    /* Контент под вкладками */
+    .result-view {
+      display: none;
+      margin-top: 4px;
+      padding-top: 4px;
+    }
+
+    /* показываем активную */
+    .result-view--active {
+      display: block;
+    }
+
+    /* подпись «итого по заказу» во вкладке Заказ */
+    .order-tab-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* ПРАВЫЙ МАСТЕР ВКЛАДОК */
+    .soft-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .soft-tabs {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+    }
+
+    .soft-tab {
+      padding: 5px 9px;
+      border-radius: 7px 7px 0 0;
+      border: 1px solid transparent;
+      border-bottom: none;
+      cursor: pointer;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .soft-tab span.icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: #e5e7eb;
+    }
+
+    .soft-tab--active {
+      background: #f9fbff;
+      border-color: #d0d8e8;
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    .soft-tab-panels {
+      background: #f9fbff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .soft-tab-panel {
+      display: none;
+      font-size: 12px;
+    }
+
+    .soft-tab-panel--active {
+      display: block;
+    }
+
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .shape-card {
+      height: 56px;
+      border-radius: 9px;
+      background: #f1f5f9;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.12s ease;
+    }
+
+    .shape-card svg {
+      width: 70%;
+      height: 70%;
+    }
+
+    .shape-card--active {
+      border-color: #2563eb;
+      background: #e0efff;
+      box-shadow: 0 0 0 1px #bfdbfe;
+    }
+
+    .shape-card:hover {
+      background: #e2e8f0;
+    }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 10px;
+      border: 1px solid #cbd5e1;
+      cursor: pointer;
+      background: #f1f5f9;
+    }
+
+    .pill--active {
+      background: #e0efff;
+      border-color: #2563eb;
+      color: #1d4ed8;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .toggle {
+      width: 34px;
+      height: 18px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .toggle__thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #9ca3af;
+      transition: 0.12s ease;
+    }
+
+    .toggle--on {
+      background: #4ade80;
+    }
+
+    .toggle--on .toggle__thumb {
+      left: 18px;
+      background: #ffffff;
+    }
+
+    .slider-row {
+      margin-top: 8px;
+      font-size: 11px;
+    }
+
+    .slider-pills {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .summary-footer {
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .summary-footer__price {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .summary-footer__price-main {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--blue);
+    }
+
+    .summary-footer__btns {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-add {
+      background: var(--blue);
+      border-radius: 999px;
+      border: none;
+      color: #fff;
+      font-size: 12px;
+      padding: 7px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-add span.icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .btn-round {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f9fbff;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Нижняя полоска (площадь и т.п.) */
+    .soft-bottom {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .soft-bottom__left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .soft-bottom__badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.65);
+      color: #f9fafb;
+      font-size: 10px;
+    }
+
+    /* Скрываем селект формы — его дёргают карточки */
+    #shape {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 1100px) {
+      .soft-work {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .soft-center {
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 12px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .soft-main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .soft-sidebar {
+        flex-direction: row;
+        height: auto;
+        justify-content: center;
+      }
+    }
+
+    .order-panel {
+      background:#fff;
+      border:1px solid #e1e6ef;
+      border-radius:12px;
+      padding:12px 14px;
+      box-shadow:0 6px 18px rgba(15,23,42,.04);
+      max-width:1080px;
+      margin:10px auto 20px; /* было 0 auto 20px */
+      font-size:13px;
+    }
+
+    .order-panel__header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+
+    .order-panel__title {
+      font-weight:600;
+    }
+
+    .btn-primary-small {
+      background:#1d7ff0;
+      border:none;
+      color:#fff;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    .order-list {
+      border-top:1px solid #e5e7eb;
+      border-bottom:1px solid #e5e7eb;
+      padding:6px 0;
+      max-height:220px;
+      overflow-y:auto;
+    }
+
+    .order-item {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 0;
+      border-bottom:1px dashed #e5e7eb;
+    }
+    .order-item:last-child {
+      border-bottom:none;
+    }
+
+    .order-item__title {
+      font-weight:500;
+    }
+    .order-item__meta {
+      font-size:11px;
+      color:#6b7280;
+    }
+    .order-item__extras {
+      font-size:11px;
+      color:#9ca3af;
+    }
+
+    .order-item__side {
+      text-align:right;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:4px;
+    }
+
+    .order-item__price {
+      font-weight:600;
+    }
+
+    .order-item__remove {
+      border:none;
+      background:#f3f4f6;
+      border-radius:999px;
+      width:18px;
+      height:18px;
+      line-height:18px;
+      text-align:center;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    .order-panel__footer {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:8px;
+      font-weight:500;
+    }
+
+    .order-panel__total {
+      font-size:14px;
+    }
+
+    .order-empty {
+      font-size:12px;
+      color:#9ca3af;
+      padding:4px 0;
+    }
+
+    .costs-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.35);
+      backdrop-filter: blur(1px);
+      z-index: 998;
+      display: none;
+    }
+
+    /* Само окно */
+    .costs-panel {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      width: 340px;
+      background: #fff;
+      z-index: 999;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(15,23,42,.18);
+      padding: 20px;
+      display: none;
+    }
+
+    .costs-panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .costs-panel__title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .costs-panel__close {
+      border: none;
+      background: #e5e7eb;
+      border-radius: 999px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .costs-panel__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .costs-panel h3 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .costs-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+
+    .costs-field label {
+      font-size: 11px;
+      color: #475569;
+    }
+
+    .costs-field input {
+      padding: 4px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .costs-panel small {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    @media (max-width: 900px) {
+      .costs-panel__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tab-content {
+      display: none;
+      padding: 16px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .tab-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .zippers-count,
+    .zip-colors {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .zip-option,
+    .zip-color-option {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #d9dee7;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    .zip-option.active,
+    .zip-color-option.active {
+      border-color: #4d8df5;
+      background: #eaf1ff;
+    }
+
+    .tab-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-apply {
+      flex: 1;
+      background: #4d8df5;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .btn-clear {
+      flex: 1;
+      background: #f8fafc;
+      color: #777;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid #d9dee7;
+    }
+
+
+    /* модалка настроек кармана */
+    #tab-pocket {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.35);
+      display: none;
+      z-index: 1000;
+    }
+
+    #tab-pocket .pocket-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 18px 40px rgba(15,23,42,.25);
+      min-width: 260px;
+    }
+
+    #pocketClose {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: #e5e7eb;
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+
+    /* модалка настроек молнии */
+    #tab-zippers {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.35);
+      display: none;
+      z-index: 1000;
+      display: none;
+    }
+
+    #tab-zippers .zippers-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 18px 40px rgba(15,23,42,.25);
+      min-width: 260px;
+    }
+
+    #tab-zippers.active {
+      display: block;
+    }
+
+    #zippersClose {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: #e5e7eb;
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    /* Оверлей для модалок (молния / карман) */
+    #tab-zippers{
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.35);
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Внутренняя карточка кармана */
+    #tab-pocket .pocket-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 18px 40px rgba(15,23,42,.25);
+      min-width: 260px;
+    }
+
+    #pocketClose {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: #e5e7eb;
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .hardware-list {
+      margin: 8px 0 10px;
+      max-height: 210px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .hardware-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #f9fbff;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: 0.15s ease;
+    }
+
+    .hardware-item__radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #cbd5e1;
+      margin-top: 4px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .hardware-item--active .hardware-item__radio {
+      border-color: #2563eb;
+    }
+
+    .hardware-item--active .hardware-item__radio::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      background: #2563eb;
+    }
+
+    .hardware-item__body {
+      flex: 1;
+    }
+
+    .hardware-item__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .hardware-item__title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hardware-item__price {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+
+    .hardware-item__desc {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .hardware-item--active {
+      border-color: #2563eb;
+      background: #e0efff;
+      box-shadow: 0 0 0 1px #bfdbfe;
+    }
+
+    .hardware-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      padding: 6px 0 4px;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 4px;
+    }
+
+    .hardware-footer__label {
+      color: var(--text-soft);
+    }
+
+    .hardware-footer__value {
+      font-weight: 500;
+    }
+
+    /* доп. блок */
+    .hardware-advanced-toggle {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #2563eb;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hardware-advanced {
+      display: none;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e5e7eb;
+    }
+
+    .hardware-advanced.hardware-advanced--open {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ЛОГИН -->
+<div id="login-screen">
+  <div id="login-box">
+    <h1>Вход в калькулятор</h1>
+    <p>Введите логин и пароль, чтобы открыть расчёт мягких окон.</p>
+    <div id="login-error"></div>
+    <input id="login-user" type="text" placeholder="Логин">
+    <input id="login-pass" type="password" placeholder="Пароль">
+    <button onclick="checkLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- ОСНОВНОЙ ИНТЕРФЕЙС-->
+<div id="app">
+  <div class="soft-shell">
+    <!-- МОЛНИЯ -->
+    <div class="tab-content" id="tab-zippers">
+      <div class="zippers-inner">
+        <button id="zippersClose">×</button>
+
+        <h3 class="tab-title">Выберите количество молний</h3>
+
+        <div class="zippers-count">
+          <div class="zip-option" data-count="0">
+            <img src="img/zippers/zip0.svg">
+          </div>
+          <div class="zip-option" data-count="1">
+            <img src="img/zippers/zip1.svg">
+          </div>
+          <div class="zip-option" data-count="2">
+            <img src="img/zippers/zip2.svg">
+          </div>
+        </div>
+
+        <h3 class="tab-title">Выберите цвет молний</h3>
+
+        <div class="zip-colors">
+          <div class="zip-color-option" data-color="black">чёрный</div>
+          <div class="zip-color-option" data-color="white">белый</div>
+        </div>
+
+        <div class="tab-actions">
+          <button class="btn-apply" id="applyZippers">ПРИМЕНИТЬ</button>
+          <button class="btn-clear" id="clearZippers">ОЧИСТИТЬ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- КАРМАН ПОД УТЯЖЕЛИТЕЛЬ -->
+    <div class="tab-content" id="tab-pocket">
+      <div class="pocket-inner">
+        <button id="pocketClose">×</button>
+
+        <h3 class="tab-title">Карман под утяжелитель</h3>
+
+        <p style="font-size:12px;color:#64748b;margin:4px 0 10px;">
+          Выберите размер кармана (см по высоте).
+        </p>
+
+        <div class="zip-colors">
+          <div class="zip-color-option pocket-option" data-size="3">3 см</div>
+          <div class="zip-color-option pocket-option" data-size="4">4 см</div>
+          <div class="zip-color-option pocket-option" data-size="5">5 см</div>
+        </div>
+
+        <div class="tab-actions" style="margin-top:16px;">
+          <button class="btn-apply" id="applyPocket">ПРИМЕНИТЬ</button>
+          <button class="btn-clear" id="clearPocket">ОЧИСТИТЬ</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- КАРМАН ПОД УТЯЖЕЛИТЕЛЬ -->
+    <div class="tab-content" id="tab-pocket">
+      <div class="pocket-inner">
+        <button id="pocketClose">×</button>
+
+        <h3 class="tab-title">Добавить карман под утяжелитель</h3>
+
+        <div class="zip-colors">
+          <div class="zip-color-option pocket-option" data-size="3">3</div>
+          <div class="zip-color-option pocket-option" data-size="4">4</div>
+          <div class="zip-color-option pocket-option" data-size="5">5</div>
+        </div>
+
+        <div class="tab-actions">
+          <button class="btn-apply" id="applyPocket">ПРИМЕНИТЬ</button>
+          <button class="btn-clear" id="clearPocket">ОЧИСТИТЬ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <div class="soft-topbar">
+      <!-- Фон под модалкой стоимости -->
+      <div id="costs-backdrop" class="costs-backdrop"></div>
+
+      <!-- Модальное окно "Стоимость" -->
+      <div id="costs-panel" class="costs-panel">
+        <div class="costs-panel__header">
+          <div class="costs-panel__title">Настройки стоимости</div>
+          <button class="costs-panel__close" id="costs-close">×</button>
+        </div>
+
+        <div class="costs-panel__grid">
+          <!-- Материалы -->
+          <div>
+            <h3>Материалы, ₽/м²</h3>
+            <div class="costs-field">
+              <label>ПВХ 0.8 мм</label>
+              <input id="price-pvc08" type="number" value="1400">
+            </div>
+            <div class="costs-field">
+              <label>ПВХ 1.0 мм</label>
+              <input id="price-pvc10" type="number" value="1600">
+            </div>
+            <div class="costs-field">
+              <label>Softglass премиум</label>
+              <input id="price-softglass" type="number" value="1900">
+            </div>
+          </div>
+
+          <!-- Окантовка -->
+          <div>
+            <h3>Окантовка</h3>
+            <div class="costs-field">
+              <label>Цена за 1 м</label>
+              <input id="edgingPriceControl" type="number" value="80">
+              <small>Меняется для всех окон сразу</small>
+            </div>
+          </div>
+
+          <!-- Работа -->
+          <div>
+            <h3>Работа</h3>
+            <div class="costs-field">
+              <label>Работа за 1 м²</label>
+              <input id="laborPricePerM2" type="number" value="300">
+              <small>Пайка, раскрой, пробивка и т.п.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="soft-topbar__left">
+        <div class="soft-topbar__menu">
+          <button class="soft-topbar__menu-btn" id="costs-toggle">Стоимость</button>
+          <button class="soft-topbar__menu-btn">Добавить пользователя</button>
+          <button class="soft-topbar__menu-btn soft-topbar__menu-btn--primary">Создать заказ</button>
+        </div>
+      </div>
+      <div class="soft-topbar__right">
+        <div class="soft-topbar__cart">
+          <div class="soft-topbar__cart-icon">🛒</div>
+          <div>
+            <div style="font-size:11px;">Итого по заказу</div>
+            <div style="font-size:13px;font-weight:600;" id="top-total">0 ₽</div>
+          </div>
+        </div>
+        <div class="soft-topbar__user">Пользователь</div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ ЗАКАЗА -->
+    <div class="order-panel">
+      <div class="order-panel__header">
+        <div class="order-panel__title">Заказ окон</div>
+        <button class="btn-primary-small" onclick="copyOrderToClipboard()">
+          Скопировать заказ
+        </button>
+      </div>
+
+      <div id="order-list" class="order-list"></div>
+
+      <div class="order-panel__footer">
+        <div>Итого по заказу:</div>
+        <div id="order-total" class="order-panel__total">0 ₽</div>
+      </div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="soft-main">
+
+      <!-- ЛЕВАЯ ПАНЕЛЬ ДОП. НАСТРОЕК -->
+      <aside class="soft-sidebar">
+        <div class="soft-sidebar__title">Дополнительные<br>настройки окна</div>
+        <div class="soft-sidebar__items">
+          <div class="soft-sidebar__item soft-sidebar__item--active" data-sidebar="zipper">
+            <div class="soft-sidebar__item-icon"></div>
+            <span>Молния</span>
+          </div>
+          <div class="soft-sidebar__item" data-sidebar="skirt">
+            <div class="soft-sidebar__item-icon"></div>
+            <span>Юбка</span>
+          </div>
+          <div class="soft-sidebar__item" data-sidebar="pocket">
+            <div class="soft-sidebar__item-icon"></div>
+            <span>Карман</span>
+          </div>
+          <div class="soft-sidebar__item" data-sidebar="cutouts">
+            <div class="soft-sidebar__item-icon"></div>
+            <span>Вырез</span>
+          </div>
+          <div class="soft-sidebar__item" data-sidebar="door">
+            <div class="soft-sidebar__item-icon"></div>
+            <span>Дверь</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ПРАВАЯ РАБОЧАЯ ЗОНА -->
+      <div class="soft-work">
+
+        <!-- ЦЕНТР: ОКНО + БАЗОВЫЕ НАСТРОЙКИ -->
+        <section class="soft-center">
+          <div class="soft-center__header">
+            <div class="soft-center__title">ОКНО №1</div>
+            <div class="soft-center__counter">01 / 01</div>
+          </div>
+
+          <div class="soft-drawing-wrapper">
+            <div class="soft-drawing-top-scale">
+
+            </div>
+            <div class="soft-drawing-main">
+              <svg id="preview" viewBox="0 0 520 440" style="width:100%;height:auto;">
+              <!-- Рисуется скриптом -->
+            </svg>
+
+            <!-- Служебные поля для расчёта (можно скрыть, верстку не ломают) -->
+            <div style="display:none">
+              <!-- Форма окна -->
+              <select id="shape">
+                <option value="rect" selected>Прямоугольник</option>
+                <option value="trapezoid">Трапеция</option>
+                <option value="arch">Арка</option>
+                <option value="angledRight">Со срезом справа</option>
+              </select>
+
+              <!-- Размеры, см -->
+              <input id="width"  type="number" value="200">
+              <input id="height" type="number" value="200">
+
+              <!-- Материал -->
+              <select id="material">
+                <option value="pvc08" data-price="1400" selected>ПВХ 0.8 мм</option>
+                <option value="pvc10" data-price="1600">ПВХ 1.0 мм</option>
+                <option value="softglass" data-price="1900">Softglass премиум</option>
+              </select>
+
+              <!-- Окантовка и шаг креплений -->
+              <input id="edgingPricePerM" type="number" value="80">
+              <input id="grommetStep"     type="number" value="30">
+
+              <!-- Юбка (см) -->
+              <input id="skirtHeightInput" type="number" value="0">
+            </div>
+
+
+            </div>
+            <div class="soft-drawing-bottom-scale">
+              
+            </div>
+          </div>
+        </section>
+
+        <!-- ПРАВЫЙ МАСТЕР ВКЛАДОК -->
+        <aside class="soft-right">
+          <div class="soft-tabs">
+            <div class="soft-tab soft-tab--active" data-tab="shape">
+              <span class="icon"></span>Форма
+            </div>
+            <div class="soft-tab" data-tab="material">
+              <span class="icon"></span>Материал
+            </div>
+            <div class="soft-tab" data-tab="edging">
+              <span class="icon"></span>Окантовка
+            </div>
+            <div class="soft-tab" data-tab="hardware">
+              <span class="icon"></span>Фурнитура
+            </div>
+            <div class="soft-tab" data-tab="mount">
+              <span class="icon"></span>Вариант установки
+            </div>
+          </div>
+
+          <div class="soft-tab-panel" data-panel="hardware">
+            <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
+              Выберите крепление для окна.
+            </div>
+
+            <!-- СПИСОК КРЕПЛЕНИЙ -->
+            <div class="hardware-list">
+              <div class="hardware-item hardware-item--active"
+                  data-type="grommet10"
+                  data-price="44">
+                <div class="hardware-item__radio"></div>
+                <div class="hardware-item__body">
+                  <div class="hardware-item__top">
+                    <div class="hardware-item__title">Люверс 10 мм</div>
+                    <div class="hardware-item__price">44 ₽</div>
+                  </div>
+                  <div class="hardware-item__desc">
+                    Универсальный вариант для утяжеления и крепления плёнки.
+                    Подходит для большинства объектов, ставится по периметру.
+                  </div>
+                </div>
+              </div>
+
+              <div class="hardware-item"
+                  data-type="bracket"
+                  data-price="112">
+                <div class="hardware-item__radio"></div>
+                <div class="hardware-item__body">
+                  <div class="hardware-item__top">
+                    <div class="hardware-item__title">Скоба с рым-кольцом</div>
+                    <div class="hardware-item__price">112 ₽</div>
+                  </div>
+                  <div class="hardware-item__desc">
+                    Усиленное крепление для ветреных зон и больших проёмов.
+                    Даёт более жёсткую фиксацию.
+                  </div>
+                </div>
+              </div>
+
+              <div class="hardware-item"
+                  data-type="metal-rotary"
+                  data-price="143">
+                <div class="hardware-item__radio"></div>
+                <div class="hardware-item__body">
+                  <div class="hardware-item__top">
+                    <div class="hardware-item__title">Поворотная металлическая</div>
+                    <div class="hardware-item__price">143 ₽</div>
+                  </div>
+                  <div class="hardware-item__desc">
+                    Удобна там, где окно часто открывают и закрывают.
+                    Фиксация поворотным флажком.
+                  </div>
+                </div>
+              </div>
+
+              <div class="hardware-item"
+                  data-type="plastic-rotary"
+                  data-price="95">
+                <div class="hardware-item__radio"></div>
+                <div class="hardware-item__body">
+                  <div class="hardware-item__top">
+                    <div class="hardware-item__title">Поворотная пластиковая</div>
+                    <div class="hardware-item__price">95 ₽</div>
+                  </div>
+                  <div class="hardware-item__desc">
+                    Лёгкий и бюджетный вариант поворотного крепления
+                    для веранд и дачных террас.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Низ вкладки: краткая сводка по креплению -->
+            <div class="hardware-footer">
+              <div class="hardware-footer__left">
+                <div class="hardware-footer__label">Тип крепления</div>
+                <div class="hardware-footer__value" id="hardware-selected-label">
+                  Люверс 10 мм · 44 ₽/шт
+                </div>
+              </div>
+            </div>
+
+            <!-- Дополнительные настройки (старый блок) -->
+            <div id="hardware-advanced-toggle" class="hardware-advanced-toggle">
+              Дополнительные настройки (молния, заплатки, вырезы)
+            </div>
+
+            <div class="hardware-advanced" id="hardware-advanced">
+              <div style="font-size:12px;color:var(--text-soft);margin-top:6px;">
+                Дополнительные элементы, влияющие на удобство и стоимость.
+              </div>
+
+              <div class="toggle-row">
+                <div>Вертикальная молния</div>
+                <div class="toggle" id="toggle-zipper">
+                  <div class="toggle__thumb"></div>
+                </div>
+              </div>
+
+              <!-- Карман под утяжелитель -->
+              <div style="margin-top:10px;font-size:12px;">
+                <div style="font-weight:600;margin-bottom:4px;">
+                  Добавить карман под утяжелитель
+                </div>
+                <div class="slider-pills" id="pocket-size-pills">
+                  <div class="pill pill--active" data-pocket="0">Нет</div>
+                  <div class="pill" data-pocket="3">3</div>
+                  <div class="pill" data-pocket="4">4</div>
+                  <div class="pill" data-pocket="5">5</div>
+                </div>
+              </div>
+
+              <div class="toggle-row">
+                <div>Заплатки усиления</div>
+                <div class="slider-pills" id="patch-count-pills">
+                  <div class="pill pill--active" data-patches="0">Нет</div>
+                  <div class="pill" data-patches="2">2</div>
+                  <div class="pill" data-patches="4">4</div>
+                </div>
+              </div>
+
+              <div class="toggle-row">
+                <div>Вырезы по бокам</div>
+                <div class="slider-pills" id="cutout-count-pills">
+                  <div class="pill pill--active" data-cutouts="0">Нет</div>
+                  <div class="pill" data-cutouts="2">2</div>
+                  <div class="pill" data-cutouts="3">3</div>
+                </div>
+              </div>
+
+              <div style="margin-top:10px;font-size:11px;color:var(--text-soft);">
+                Координаты (см) от левого края и верха окна:
+              </div>
+
+              <div class="settings-field" style="margin-top:6px;">
+                <label>Позиции заплаток (x,y; ...)</label>
+                <input id="patchPositionsInput" type="text"
+                      placeholder="например: 30,40; 120,60"
+                      style="font-size:11px;padding:4px 6px;">
+              </div>
+
+              <div class="settings-field" style="margin-top:4px;">
+                <label>Позиции вырезов (x,y; ...)</label>
+                <input id="cutoutPositionsInput" type="text"
+                      placeholder="например: 0,50; 0,110"
+                      style="font-size:11px;padding:4px 6px;">
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Сводка справа снизу -->
+          <div class="summary-footer">
+            <div class="summary-footer__price">
+              <div style="font-size:11px;color:var(--text-soft);">Площадь окна</div>
+              <div id="summary-area" style="font-size:12px;">0.00 м²</div>
+              <div class="summary-footer__price-main" id="summary-total">0 ₽</div>
+            </div>
+            <div class="summary-footer__btns">
+              <button class="btn-round" title="Сбросить окно" onclick="resetSoftWindow()">⟲</button>
+              <button class="btn-add" onclick="addCurrentWindowToOrder()">
+                <span class="icon"></span>
+                <span>Добавить окно</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Нижняя полоса -->
+      <div class="soft-bottom">
+        <div class="soft-bottom__left">
+          <span class="soft-bottom__badge" id="bottom-area-badge">0.00 м²</span>
+          <span>Индивидуальное редактирование комплектации</span>
+        </div>
+        <div>Калькулятор мягких окон · демо-версия</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const ORDER_STORAGE_KEY = 'softglass_order_v1';
+  const FRAME_CM = 5;
+
+  const FRAME_THICKNESS = 14; // толщина рамы в px в SVG
+  // Список окон в заказе
+  let orderItems = [];
+  let lastCalc = null; // сюда записываем последний расчёт из calcSoftWindow
+
+  // Глобальное состояние текущего окна
+  const windowState = {
+    hasZipper: false,        // молния
+    patchCount: 0,           // заплатки
+    sideCutouts: 0,          // вырезы
+    skirtHeight: 0,          // юбка, см
+    patchPositions: [],      // координаты заплаток
+    cutoutPositions: [],     // координаты вырезов
+    hasPocket: false,        // есть ли карман под утяжелитель
+    pocketSize: null,         // размер кармана (3 / 4 / 5)
+
+    hardwareType: 'grommet10',
+    hardwarePricePerPiece: 44
+  };
+
+
+  /* ============================================
+    УТИЛИТЫ
+  ============================================ */
+  function v(id) {
+    return document.getElementById(id).value;
+  }
+  function num(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return +el.value || 0;
+  }
+  function showBlock(id, show) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = show ? "block" : "none";
+  }
+  function updateSkirtFromInput() {
+    const h = +document.getElementById("skirtHeightInput").value || 0;
+    windowState.skirtHeight = h;
+    if (typeof calcSoftWindow === "function") {
+      calcSoftWindow();
+    }
+  }
+  function setResult(html) {
+    const block = document.getElementById('result-window');
+    if (block) block.innerHTML = html;
+  }
+
+
+  /* SVG helper */
+  function makeSVG(tag, attrs = {}) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  /* Стрелочки размеров */
+  function makeArrow(x, y, dir) {
+    const s = 5;
+    let d = "";
+    if (dir === "left")  d = `M ${x + s} ${y - s} L ${x} ${y} L ${x + s} ${y + s}`;
+    if (dir === "right") d = `M ${x - s} ${y - s} L ${x} ${y} L ${x - s} ${y + s}`;
+    if (dir === "up")    d = `M ${x - s} ${y + s} L ${x} ${y} L ${x + s} ${y + s}`;
+    if (dir === "down")  d = `M ${x - s} ${y - s} L ${x} ${y} L ${x + s} ${y - s}`;
+    return makeSVG("path", {
+      d, fill: "none", stroke: "#9ca3af",
+      "stroke-width": 1.4, "stroke-linecap": "round"
+    });
+  }
+
+  // "10,20; 30,40" -> [{xCm:10,yCm:20},{xCm:30,yCm:40}]
+  function parsePositionsCm(str) {
+    if (!str) return [];
+    return str
+      .split(";")
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(pair => {
+        const [xs, ys] = pair.split(",").map(p => p.trim());
+        const xCm = Number(xs.replace(",", "."));
+        const yCm = Number(ys.replace(",", "."));
+        if (isNaN(xCm) || isNaN(yCm)) return null;
+        return { xCm, yCm };
+      })
+      .filter(Boolean);
+  }
+
+  /* ============================================
+    ОСНОВНАЯ ФУНКЦИЯ — РАСЧЁТ ОКНА
+  ============================================ */
+  function calcSoftWindow() {
+    const shape = v("shape");
+    const widthCm = num("width");
+    const heightCm = num("height");
+
+    const topDelta = shape === "trapezoid" ? num("topDelta") : 0;
+    const archHeight = shape === "arch" ? num("archHeight") : 0;
+    const flatTopHeight = shape === "angledRight" ? num("flatTopHeight") : 0;
+
+    const edgingPricePerM = num("edgingPricePerM");
+    const grommetStep = num("grommetStep") || 30;
+    const laborPricePerM2 = num("laborPricePerM2") || 0;
+
+    // Материал
+    const materialSel = document.getElementById("material");
+    const materialPrice = +materialSel.selectedOptions[0].dataset.price;
+    const materialName = materialSel.selectedOptions[0].innerText;
+
+    if (!widthCm || !heightCm) {
+      setResult("Введите размеры окна");
+      drawShape(shape, 0, 0, {});
+      return;
+    }
+
+    const widthM = widthCm / 100;
+    const heightM = heightCm / 100;
+
+    let area = widthM * heightM;
+
+    // Формы
+    if (shape === "trapezoid") {
+      const topW = (widthCm - topDelta) / 100;
+      area = ((widthM + topW) / 2) * heightM;
+    }
+    if (shape === "arch") {
+      const rectH = heightM - archHeight / 100;
+      const r = widthM / 2;
+      area = (rectH > 0 ? rectH * widthM : 0) + (Math.PI * r * r) / 2;
+    }
+    if (shape === "angledRight") {
+      const tri = Math.max(0, (heightCm - flatTopHeight) / 100);
+      area = widthM * heightM - (tri * tri) / 2;
+    }
+
+    // Допы из глобального состояния
+    const skirtHeight = windowState.skirtHeight || 0; // см
+
+    // Если есть координаты заплаток/вырезов — считаем по ним, иначе по количеству
+    const manualPatchCount = (windowState.patchPositions && windowState.patchPositions.length) || 0;
+    const manualCutoutCount = (windowState.cutoutPositions && windowState.cutoutPositions.length) || 0;
+
+    const patchCount = manualPatchCount || windowState.patchCount || 0;
+    const sideCutouts = manualCutoutCount || windowState.sideCutouts || 0;
+    const hasZipper = !!windowState.hasZipper;
+
+    const hasPocket = !!windowState.hasPocket;
+    const pocketSize = windowState.pocketSize; // 3 / 4 / 5, если нужно учитывать отдельно
+
+
+    // Юбка добавляет площадь
+    let skirtArea = 0;
+    if (skirtHeight > 0) {
+      skirtArea = (widthCm / 100) * (skirtHeight / 100);
+      area += skirtArea;
+    }
+
+    // Окантовка (периметр пока прямоугольный)
+    const perimeterM = 2 * (widthM + heightM);
+    const edgingCost = perimeterM * edgingPricePerM;
+
+    // Плёнка
+    const filmCost = area * materialPrice;
+
+    // Работа (пайка, раскрой и т.д.)
+    const laborCost = area * laborPricePerM2;
+
+    // Люверсы
+    const grommetsCount = Math.max(4, Math.ceil((2 * (widthCm + heightCm)) / grommetStep));
+
+    const hardwarePricePerPiece = windowState.hardwarePricePerPiece || 0;
+    const hardwareCost = grommetsCount * hardwarePricePerPiece;
+
+    // Цены допов
+    const patchPrice = 80;       // заплатка
+    const cutoutPrice = 120;     // вырез
+    const zipperPrice = 350;     // молния
+    const skirtPricePerM = 250;  // юбка за погонный метр ширины
+    const pocketCost = 0;
+
+    const skirtCost = skirtHeight > 0 ? widthM * skirtPricePerM : 0;
+    const patchCost = patchCount * patchPrice;
+    const cutoutCost = sideCutouts * cutoutPrice;
+    const zipperCost = hasZipper ? zipperPrice : 0;
+
+    const total = Math.round(
+      filmCost +
+      edgingCost +
+      skirtCost +
+      patchCost +
+      cutoutCost +
+      zipperCost +
+      laborCost +
+      pocketCost +
+      hardwareCost
+    );
+
+
+    // Подписи
+    const topLabel = document.getElementById("top-width-label");
+    const bottomLabel = document.getElementById("bottom-width-label");
+    if (topLabel) topLabel.textContent = widthCm + " см";
+    if (bottomLabel) bottomLabel.textContent = widthCm + " см";
+
+    setResult(`
+      <strong>Форма:</strong> ${shapeName(shape)}<br>
+      Материал: ${materialName}<br>
+      Ширина: ${widthCm} см, высота: ${heightCm} см<br>
+      Площадь: ${area.toFixed(2)} м²<br>
+      Люверсов (примерно): ${grommetsCount} шт.<br>
+      Плёнка: ${filmCost.toFixed(0)} ₽<br>
+      Окантовка: ${edgingCost.toFixed(0)} ₽<br>
+      Работа: ${laborCost.toFixed(0)} ₽<br>
+      ${skirtHeight > 0 ? `Юбка (${skirtHeight} см): ${skirtCost.toFixed(0)} ₽<br>` : ``}
+      ${patchCount > 0 ? `Заплатки (${patchCount} шт.): ${patchCost.toFixed(0)} ₽<br>` : ``}
+      ${sideCutouts > 0 ? `Вырезы (${sideCutouts} шт.): ${cutoutCost.toFixed(0)} ₽<br>` : ``}
+      ${hasZipper ? `Молния: ${zipperCost.toFixed(0)} ₽<br>` : ``}
+      ${hasPocket ? `Карман под утяжелитель (${pocketSize || ''}): добавлен<br>` : ``}
+      ${hardwarePricePerPiece > 0 ? `Крепление: ${grommetsCount} шт. × ${hardwarePricePerPiece.toFixed(0)} ₽ = ${hardwareCost.toFixed(0)} ₽<br>` : ``}
+      <strong>Итого: ${total} ₽</strong>
+    `);
+
+    document.getElementById("summary-total").textContent = total + " ₽";
+    document.getElementById("summary-area").textContent = area.toFixed(2) + " м²";
+    document.getElementById("bottom-area-badge").textContent = area.toFixed(2) + " м²";
+    document.getElementById("top-total").textContent = total + " ₽";
+
+    // Передаём координаты дальше
+    drawShape(shape, widthCm, heightCm, {
+      topDelta,
+      archHeight,
+      flatTopHeight,
+      grommetStep,
+      skirtHeight,
+      patchCount,
+      sideCutouts,
+      hasZipper,
+      hasPocket,
+      pocketSize,
+      patchPositions: windowState.patchPositions || [],
+      cutoutPositions: windowState.cutoutPositions || []
+    });
+
+
+      // Запоминаем последний расчёт для "Добавить в заказ"
+    lastCalc = {
+      shape,
+      shapeName: shapeName(shape),
+      widthCm,
+      heightCm,
+      area: +area.toFixed(2),
+      filmCost: Math.round(filmCost),
+      edgingCost: Math.round(edgingCost),
+      skirtHeight,
+      patchCount,
+      sideCutouts,
+      hasZipper,
+      hasPocket,
+      pocketSize,
+      total,
+      materialName
+    };
+
+  }
+
+  function shapeName(s) {
+    return {
+      rect: "Прямоугольник",
+      trapezoid: "Трапеция",
+      arch: "Арка",
+      angledRight: "Со срезом справа"
+    }[s] || s;
+  }
+
+  /* ============================================
+    ОТРИСОВКА SVG
+  ============================================ */
+  // ОТРИСОВКА ОСНОВНОЙ ФОРМЫ ОКНА
+  function drawShape(shape, widthCm, heightCm, opts = {}) {
+    const svg = document.getElementById('preview');
+    if (!svg) return;
+    svg.innerHTML = '';
+
+    if (!widthCm || !heightCm) return;
+
+    const padding = 40;
+    const maxW = 520 - padding * 2;
+    const maxH = 440 - padding * 2;
+
+    const fullHeightCm = heightCm + (opts.skirtHeight || 0);
+    const scale = Math.min(
+      maxW / widthCm,
+      maxH / (fullHeightCm || 1)
+    );
+
+    const outerW = widthCm * scale;
+    const outerH = heightCm * scale;
+    const framePx = FRAME_CM * scale; // физические 5 см в пикселях
+    const innerX = framePx;
+    const innerY = framePx;
+    const innerW = outerW - 2 * framePx;
+    const innerH = outerH - 2 * framePx;
+    const skirtPx = (opts.skirtHeight || 0) * scale;
+    const grommetStepCm = opts.grommetStep || 30;
+    const grommetStepPx = grommetStepCm * scale;
+
+    // градиент стекла
+    const defs = makeSVG('defs');
+    const grad = makeSVG('linearGradient', {
+      id: 'glassGrad',
+      x1: '0%', y1: '0%',
+      x2: '100%', y2: '100%'
+    });
+    grad.appendChild(makeSVG('stop', { offset: '0%',  'stop-color': '#e5f3ff' }));
+    grad.appendChild(makeSVG('stop', { offset: '100%','stop-color': '#c0dcf5' }));
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+
+    const g = makeSVG('g', {
+      transform: `translate(${padding}, ${padding})`
+    });
+    svg.appendChild(g);
+
+    // ---------- ПРЯМОУГОЛЬНИК (как на макете) ----------
+    if (shape === 'rect') {
+      // тёмный кант с закруглёнными углами
+      const frameRect = makeSVG('rect', {
+        x: 0,
+        y: 0,
+        width: outerW,
+        height: outerH,
+        fill: '#2a2f38'
+      });
+      g.appendChild(frameRect);
+
+      // стекло внутри
+      const glassRect = makeSVG('rect', {
+        x: innerX,
+        y: innerY,
+        width: innerW,
+        height: innerH,
+        fill: 'url(#glassGrad)'
+      });
+      g.appendChild(glassRect);
+
+      // люверсы и скобы: по центру канта, 2.5 см от углов
+      placeGrommetsRect(
+        g,
+        widthCm,
+        heightCm,
+        scale,
+        FRAME_CM,     // ширина канта в см
+        grommetStepCm // шаг креплений (30 / 40 / 50)
+      );
+
+      // юбка (если есть)
+      if (skirtPx > 0) {
+        const skirt = makeSVG('rect', {
+          x: 0,
+          y: outerH,
+          width: outerW,
+          height: framePx,
+          fill: '#2a2f38'
+        });
+        g.appendChild(skirt);
+      }
+
+      drawSizes(svg, widthCm, heightCm + (opts.skirtHeight || 0), scale, padding);
+      drawExtras(g, outerW, outerH, opts, scale, framePx);
+      return;
+    }
+
+    // ---------- ОСТАЛЬНЫЕ ФОРМЫ (как были, с маленьким тюнингом) ----------
+
+    let points = [];
+
+    if (shape === 'trapezoid') {
+      const topDelta = opts.topDelta || 0;
+      const topW = (widthCm - topDelta) * scale;
+      const offset = (outerW - topW) / 2;
+
+      points = [
+        { x: 0,          y: outerH },
+        { x: outerW,     y: outerH },
+        { x: outerW - offset, y: 0 },
+        { x: offset,     y: 0 }
+      ];
+    } else if (shape === 'angledRight') {
+      const flatTopPx = (opts.flatTopHeight || 0) * scale;
+      const slopeStartX = outerW * 0.65;
+
+      points = [
+        { x: 0,           y: outerH },
+        { x: 0,           y: 0 },
+        { x: outerW,      y: 0 },
+        { x: outerW,      y: flatTopPx },
+        { x: slopeStartX, y: outerH }
+      ];
+    }
+
+    if (shape === 'arch') {
+      const archPx = Math.min((opts.archHeight || 0) * scale, outerH - 20);
+      const rectH = outerH - archPx;
+      const radius = outerW / 2;
+
+      const path = makeSVG('path', {
+        d: `
+          M 0 ${outerH}
+          L 0 ${rectH}
+          A ${radius} ${radius} 0 0 1 ${outerW} ${rectH}
+          L ${outerW} ${outerH}
+          Z
+        `,
+        fill: 'url(#glassGrad)',
+        stroke: '#2a2f38',
+        'stroke-width': framePx,
+        'stroke-linejoin': 'miter'
+      });
+      g.appendChild(path);
+
+      placeGrommetsArch(g, outerW, outerH, rectH, grommetStepPx);
+
+      if (skirtPx > 0) {
+        const skirt = makeSVG('rect', {
+          x: 0,
+          y: outerH,
+          width: outerW,
+          height: framePx,
+          fill: '#2a2f38'
+        });
+        g.appendChild(skirt);
+      }
+
+      drawSizes(svg, widthCm, heightCm + (opts.skirtHeight || 0), scale, padding);
+      drawExtras(g, outerW, outerH, opts, scale, framePx);
+      return;
+    }
+
+    // трапеция / срез справа — через path
+    if (points.length) {
+      const d =
+        points.map((p, i) =>
+          (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)
+        ).join(' ') + ' Z';
+
+      const path = makeSVG('path', {
+        d,
+        fill: 'url(#glassGrad)',
+        stroke: '#2a2f38',
+        'stroke-width': framePx,
+        'stroke-linejoin': 'miter'
+      });
+      g.appendChild(path);
+
+      placeGrommetsPath(g, points, grommetStepPx);
+    }
+
+    if (skirtPx > 0) {
+      const skirt = makeSVG('rect', {
+        x: 0,
+        y: outerH,
+        width: outerW,
+        height: framePx,
+        fill: '#2a2f38'
+      });
+      g.appendChild(skirt);
+    }
+
+    drawSizes(svg, widthCm, heightCm + (opts.skirtHeight || 0), scale, padding);
+    drawExtras(g, outerW, outerH, opts, scale, framePx);
+  }
+
+  // ЛЮВЕРСЫ ПО ПРОИЗВОЛЬНОМУ КОНТУРУ
+  function placeGrommetsPath(g, points, stepPx) {
+    const r = 4;
+
+    for (let i = 0; i < points.length; i++) {
+      const p1 = points[i];
+      const p2 = points[(i + 1) % points.length];
+
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+
+      const steps = Math.max(1, Math.floor(len / stepPx));
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const x = p1.x + dx * t;
+        const y = p1.y + dy * t;
+
+        g.appendChild(makeSVG('circle', {
+          cx: x,
+          cy: y,
+          r,
+          fill: '#ffffff',
+          stroke: '#334155',
+          'stroke-width': 1.3
+        }));
+      }
+    }
+  }
+
+
+  // ЛЮВЕРСЫ ДЛЯ АРКИ
+  function placeGrommetsArch(g, w, h, rectH, stepPx) {
+    const r = 4;
+
+    // низ
+    for (let x = 0; x <= w; x += stepPx) {
+      g.appendChild(makeSVG('circle', {
+        cx: x,
+        cy: h,
+        r,
+        fill: '#ffffff',
+        stroke: '#334155',
+        'stroke-width': 1.3
+      }));
+    }
+
+    // левый вертикальный
+    for (let y = h; y >= rectH; y -= stepPx) {
+      g.appendChild(makeSVG('circle', {
+        cx: 0,
+        cy: y,
+        r,
+        fill: '#ffffff',
+        stroke: '#334155',
+        'stroke-width': 1.3
+      }));
+    }
+
+    // дуга
+    const radius = w / 2;
+    const cx = w / 2;
+    const cy = rectH;
+    const arcLen = Math.PI * radius;
+    const steps = Math.max(1, Math.floor(arcLen / stepPx));
+
+    for (let i = 0; i <= steps; i++) {
+      const angle = Math.PI - (Math.PI * i / steps); // от левого края к правому
+      const x = cx + radius * Math.cos(angle);
+      const y = cy - radius * Math.sin(angle);
+
+      g.appendChild(makeSVG('circle', {
+        cx: x,
+        cy: y,
+        r,
+        fill: '#ffffff',
+        stroke: '#334155',
+        'stroke-width': 1.3
+      }));
+    }
+
+    // правый вертикальный
+    for (let y = rectH; y <= h; y += stepPx) {
+      g.appendChild(makeSVG('circle', {
+        cx: w,
+        cy: y,
+        r,
+        fill: '#ffffff',
+        stroke: '#334155',
+        'stroke-width': 1.3
+      }));
+    }
+  }
+
+  function ensureGlassGradient(svg) {
+    // уже есть — не дублируем
+    if (svg.querySelector('#glassGradSoft')) return;
+
+    const defs = makeSVG('defs');
+    const grad = makeSVG('linearGradient', {
+      id: 'glassGradSoft',
+      x1: '0%', y1: '0%',
+      x2: '100%', y2: '100%'
+    });
+
+    grad.appendChild(makeSVG('stop', {
+      offset: '0%',
+      'stop-color': '#e8f6ff'
+    }));
+    grad.appendChild(makeSVG('stop', {
+      offset: '50%',
+      'stop-color': '#cfe8fb'
+    }));
+    grad.appendChild(makeSVG('stop', {
+      offset: '100%',
+      'stop-color': '#b3d4f3'
+    }));
+
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+  }
+
+  function drawGlassHighlight(g, w, h) {
+    const highlight = makeSVG('path', {
+      d: `
+        M ${w * 0.05} ${h * 0.15}
+        L ${w * 0.45} ${h * 0.05}
+        L ${w * 0.6}  ${h * 0.35}
+        L ${w * 0.2}  ${h * 0.45}
+        Z
+      `,
+      fill: 'rgba(255,255,255,0.18)'
+    });
+    g.appendChild(highlight);
+  }
+
+
+  // Люверсы/скобы для прямоугольника:
+  function placeGrommetsRect(g, widthCm, heightCm, scale, frameCm, targetStepCm) {
+    const offsetCm = 2.5;      // отступ вдоль стороны от углов
+    const centerInFrameCm = frameCm / 2; // от края до центра по ширине канта
+    const MIN_STEP = 20;
+    const MAX_STEP = 40;
+
+    function calcPositions(lengthCm) {
+      const usable = lengthCm - 2 * offsetCm;
+      if (usable <= 0) return [];
+
+      let intervals = Math.max(1, Math.round(usable / targetStepCm));
+      let stepCm = usable / intervals;
+
+      if (stepCm < MIN_STEP) {
+        intervals = Math.floor(usable / MIN_STEP) || 1;
+        stepCm = usable / intervals;
+      }
+      if (stepCm > MAX_STEP) {
+        intervals = Math.ceil(usable / MAX_STEP) || 1;
+        stepCm = usable / intervals;
+      }
+
+      const pos = [];
+      for (let i = 0; i <= intervals; i++) {
+        pos.push(offsetCm + stepCm * i);
+      }
+      return pos;
+    }
+
+    const topXsCm  = calcPositions(widthCm);
+    const sideYsCm = calcPositions(heightCm);
+
+    const framePx = frameCm * scale;
+    const topY    = centerInFrameCm * scale;
+    const bottomY = heightCm * scale - centerInFrameCm * scale;
+    const leftX   = centerInFrameCm * scale;
+    const rightX  = widthCm * scale - centerInFrameCm * scale;
+
+    function drawGlover(xPx, yPx) {
+      const r = framePx * 0.3; // размер привязан к ширине канта
+      g.appendChild(makeSVG('circle', {
+        cx: xPx,
+        cy: yPx,
+        r,
+        fill: '#ffffff',
+        stroke: '#1f2937',
+        'stroke-width': 1.5
+      }));
+    }
+
+    function drawBracket(xPx, yPx) {
+      const w = framePx * 0.9;
+      const h = framePx * 1.1;
+
+      const rect = makeSVG('rect', {
+        x: xPx - w / 2,
+        y: yPx - h / 2,
+        width: w,
+        height: h,
+        rx: h * 0.3,
+        ry: h * 0.3,
+        fill: '#e5e7eb',
+        stroke: '#4b5563',
+        'stroke-width': 1
+      });
+      g.appendChild(rect);
+
+      g.appendChild(makeSVG('circle', {
+        cx: xPx,
+        cy: yPx,
+        r: w * 0.25,
+        fill: '#ffffff',
+        stroke: '#111827',
+        'stroke-width': 1
+      }));
+    }
+
+    // верх: люверсы
+    topXsCm.forEach(xCm => {
+      const xPx = xCm * scale;
+      drawGlover(xPx, topY);
+    });
+
+    // низ: такие же люверсы, без крайних, чтобы углы не дублировались
+    topXsCm.forEach((xCm, i) => {
+      if (i === 0 || i === topXsCm.length - 1) return;
+      const xPx = xCm * scale;
+      drawGlover(xPx, bottomY);
+    });
+
+    // левая сторона: скобы
+    sideYsCm.forEach((yCm, i) => {
+      if (i === 0 || i === sideYsCm.length - 1) return;
+      const yPx = yCm * scale;
+      drawBracket(leftX, yPx);
+    });
+
+    // правая сторона: скобы
+    sideYsCm.forEach((yCm, i) => {
+      if (i === 0 || i === sideYsCm.length - 1) return;
+      const yPx = yCm * scale;
+      drawBracket(rightX, yPx);
+    });
+  }
+  // Доп. графика: юбка, заплатки, вырезы, молния
+  function drawExtras(g, w, h, opts, scale, frameThickness) {
+    const skirtHeight = opts.skirtHeight || 0;
+    const patchCount = opts.patchCount || 0;
+    const sideCutouts = opts.sideCutouts || 0;
+    const hasZipper = !!opts.hasZipper;
+    const hasPocket = !!opts.hasPocket;
+    const pocketSize = opts.pocketSize;
+
+    const patchPositions = opts.patchPositions || [];
+    const cutoutPositions = opts.cutoutPositions || [];
+
+    const innerTop = frameThickness;
+    const innerBottom = h - frameThickness;
+    const innerLeft = frameThickness;
+    const innerRight = w - frameThickness;
+
+    // Юбка (визуально – как ещё одна полоса рамы снизу)
+    if (skirtHeight > 0) {
+      const skirt = makeSVG('rect', {
+        x: 0,
+        y: h,
+        width: w,
+        height: frameThickness,
+        fill: '#2a2f38'
+      });
+      g.appendChild(skirt);
+    }
+
+    // ЗАПЛАТКИ
+    if (patchPositions.length > 0) {
+      patchPositions.forEach(pos => {
+        const xPx = (pos.xCm || 0) * scale;
+        const yPx = (pos.yCm || 0) * scale;
+        const patch = makeSVG('rect', {
+          x: xPx,
+          y: yPx,
+          width: 32,
+          height: 20,
+          fill: 'rgba(255,255,255,0.6)',
+          stroke: '#94a3b8',
+          'stroke-dasharray': '4 2'
+        });
+        g.appendChild(patch);
+      });
+    } else {
+      for (let i = 0; i < patchCount; i++) {
+        const x = innerLeft + 20 + i * 30;
+        const y = innerTop + 25 + i * 15;
+        const patch = makeSVG('rect', {
+          x,
+          y,
+          width: 32,
+          height: 20,
+          fill: 'rgba(255,255,255,0.6)',
+          stroke: '#94a3b8',
+          'stroke-dasharray': '4 2'
+        });
+        g.appendChild(patch);
+      }
+    }
+
+    // ВЫРЕЗЫ
+    if (cutoutPositions.length > 0) {
+      cutoutPositions.forEach(pos => {
+        const xPx = (pos.xCm || 0) * scale;
+        const yPx = (pos.yCm || 0) * scale;
+        const cut = makeSVG('rect', {
+          x: xPx,
+          y: yPx,
+          width: 12,
+          height: 20,
+          fill: '#ffffff',
+          stroke: '#0f172a'
+        });
+        g.appendChild(cut);
+      });
+    } else {
+      for (let i = 0; i < sideCutouts; i++) {
+        const cut = makeSVG('rect', {
+          x: innerLeft - 6,
+          y: innerTop + 40 + i * 35,
+          width: 12,
+          height: 20,
+          fill: '#ffffff',
+          stroke: '#0f172a'
+        });
+        g.appendChild(cut);
+      }
+    }
+
+    // МОЛНИЯ
+    if (hasZipper) {
+      const zipX = innerRight - 8;
+      const zip = makeSVG('line', {
+        x1: zipX,
+        y1: innerTop + 10,
+        x2: zipX,
+        y2: innerBottom - 10,
+        stroke: '#0f172a',
+        'stroke-width': 3
+      });
+      g.appendChild(zip);
+
+      const head = makeSVG('rect', {
+        x: zipX - 6,
+        y: (innerTop + innerBottom) / 2 - 8,
+        width: 12,
+        height: 16,
+        fill: '#ffffff',
+        stroke: '#0f172a'
+      });
+      g.appendChild(head);
+    }
+  }
+
+  function addCurrentWindowToOrder() {
+    if (!lastCalc) return;
+
+    const id = Date.now() + Math.random();
+
+    const extras = [];
+    if (lastCalc.skirtHeight > 0) extras.push(`юбка ${lastCalc.skirtHeight} см`);
+    if (lastCalc.patchCount > 0)  extras.push(`заплатки ${lastCalc.patchCount} шт.`);
+    if (lastCalc.sideCutouts > 0) extras.push(`вырезы ${lastCalc.sideCutouts} шт.`);
+    if (lastCalc.hasZipper)       extras.push(`молния`);
+    if (lastCalc.hasPocket)       extras.push(`карман под утяжелитель`);
+
+    orderItems.push({
+      id,
+      title: `Окно ${orderItems.length + 1}`,
+      ...lastCalc,
+      extrasText: extras.length ? extras.join(", ") : "без допов"
+    });
+
+    renderOrderList();
+  }
+
+  function removeOrderItem(id) {
+    orderItems = orderItems.filter(item => item.id !== id);
+    renderOrderList();
+  }
+
+  function renderOrderList() {
+    const listEl = document.getElementById("order-list");
+    const totalEl = document.getElementById("order-total");
+    if (!listEl || !totalEl) return;
+
+    if (!orderItems.length) {
+      listEl.innerHTML = `<div class="order-empty">Пока нет ни одного окна.</div>`;
+      totalEl.textContent = "0 ₽";
+      return;
+    }
+
+    let html = "";
+    let sum = 0;
+
+    orderItems.forEach(item => {
+      sum += item.total;
+      html += `
+        <div class="order-item">
+          <div class="order-item__main">
+            <div class="order-item__title">${item.title}</div>
+            <div class="order-item__meta">
+              ${item.shapeName}, ${item.widthCm}×${item.heightCm} см
+              · ${item.area.toFixed(2)} м²
+            </div>
+            <div class="order-item__extras">
+              ${item.materialName} · ${item.extrasText}
+            </div>
+          </div>
+          <div class="order-item__side">
+            <div class="order-item__price">${item.total} ₽</div>
+            <button class="order-item__remove" onclick="removeOrderItem(${item.id})">×</button>
+          </div>
+        </div>
+      `;
+    });
+
+    listEl.innerHTML = html;
+    totalEl.textContent = sum + " ₽";
+
+    // сохраняем заказ в localStorage
+    try {
+      localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderItems));
+    } catch (e) {
+      console.warn('Не удалось сохранить заказ в localStorage', e);
+    }
+
+    // обновляем сумму в верхней голубой панели
+    const topTotalEl = document.getElementById('top-total');
+    if (topTotalEl) {
+      topTotalEl.textContent = sum + ' ₽';
+    }
+  }
+
+  function loadOrderFromStorage() {
+    try {
+      const raw = localStorage.getItem(ORDER_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        orderItems = parsed;
+        renderOrderList();
+      }
+    } catch (e) {
+      console.warn('Не удалось прочитать заказ из localStorage', e);
+    }
+  }
+
+  function formatOrderForCopy() {
+    if (!orderItems.length) {
+      return 'Заказ пуст. Нет ни одного окна.';
+    }
+
+    let lines = [];
+    lines.push('Заказ мягких окон:');
+    lines.push('');
+
+    let sum = 0;
+
+    orderItems.forEach((item, index) => {
+      sum += item.total;
+      lines.push(`Окно ${index + 1}:`);
+      lines.push(`  Форма: ${item.shapeName}`);
+      lines.push(`  Размеры: ${item.widthCm} × ${item.heightCm} см`);
+      lines.push(`  Площадь: ${item.area.toFixed(2)} м²`);
+      lines.push(`  Материал: ${item.materialName}`);
+      if (item.skirtHeight > 0) {
+        lines.push(`  Юбка: ${item.skirtHeight} см`);
+      }
+      if (item.patchCount > 0) {
+        lines.push(`  Заплатки: ${item.patchCount} шт.`);
+      }
+      if (item.sideCutouts > 0) {
+        lines.push(`  Вырезы: ${item.sideCutouts} шт.`);
+      }
+      if (item.hasZipper) {
+        lines.push(`  Молния: есть`);
+      }
+      lines.push(`  Стоимость окна: ${item.total} ₽`);
+      lines.push('');
+    });
+
+    lines.push(`ИТОГО по заказу: ${sum} ₽`);
+
+    return lines.join('\n');
+  }
+
+  async function copyOrderToClipboard() {
+    const text = formatOrderForCopy();
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        alert('Заказ скопирован в буфер. Можно вставить в чат/письмо.');
+      } else {
+        // старые браузеры
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        alert('Заказ скопирован в буфер. Можно вставить в чат/письмо.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось скопировать заказ. Попробуйте выделить текст и скопировать вручную.');
+    }
+  }
+
+  /* ============================================
+    РАЗМЕРЫ ВОКРУГ SVG
+  ============================================ */
+  function drawSizes(svg, widthCm, heightCm, scale, pad, frameThickness = 0) {
+    svg.appendChild((() => {
+      const g = makeSVG("g");
+      const w = widthCm * scale;
+      const h = heightCm * scale;
+
+      // Линия/стрелки сверху
+      g.appendChild(makeSVG("line", {
+        x1: pad,
+        y1: 18,
+        x2: pad + w,
+        y2: 18,
+        stroke: "#9ca3af",
+        "stroke-width": 1.2
+      }));
+      g.appendChild(makeArrow(pad, 18, "left"));
+      g.appendChild(makeArrow(pad + w, 18, "right"));
+
+      // Пилл с размером по ширине (как на скрине "130")
+      const pillW = 46;
+      const pillH = 20;
+      const pillX = pad + w / 2 - pillW / 2;
+      const pillY = 22;
+
+      const pillTop = makeSVG("rect", {
+        x: pillX,
+        y: pillY,
+        width: pillW,
+        height: pillH,
+        rx: 10,
+        ry: 10,
+        fill: "#e0f2ff",
+        stroke: "#38bdf8",
+        "stroke-width": 1
+      });
+      g.appendChild(pillTop);
+
+      const tTop = makeSVG("text", {
+        x: pillX + pillW / 2,
+        y: pillY + 14,
+        "text-anchor": "middle",
+        "font-size": 11,
+        fill: "#0f172a"
+      });
+      tTop.textContent = widthCm;
+      g.appendChild(tTop);
+
+      // Линия/стрелки слева
+      g.appendChild(makeSVG("line", {
+        x1: 18,
+        y1: pad,
+        x2: 18,
+        y2: pad + h,
+        stroke: "#9ca3af",
+        "stroke-width": 1.2
+      }));
+      g.appendChild(makeArrow(18, pad, "up"));
+      g.appendChild(makeArrow(18, pad + h, "down"));
+
+      // Пилл с высотой ("115") слева
+      const pillLeftX = 8;
+      const pillLeftY = pad + h / 2 - pillH / 2;
+
+      const pillLeft = makeSVG("rect", {
+        x: pillLeftX,
+        y: pillLeftY,
+        width: pillW,
+        height: pillH,
+        rx: 10,
+        ry: 10,
+        fill: "#e0f2ff",
+        stroke: "#38bdf8",
+        "stroke-width": 1
+      });
+      g.appendChild(pillLeft);
+
+      const tLeft = makeSVG("text", {
+        x: pillLeftX + pillW / 2,
+        y: pillLeftY + 14,
+        "text-anchor": "middle",
+        "font-size": 11,
+        fill: "#0f172a"
+      });
+      tLeft.textContent = heightCm;
+      g.appendChild(tLeft);
+
+      return g;
+    })());
+  }
+
+
+  /* ============================================
+    СБРОС
+  ============================================ */
+  function resetSoftWindow() {
+    document.getElementById("shape").value = "rect";
+    document.getElementById("width").value = 200;
+    document.getElementById("height").value = 200;
+    document.getElementById("edgingPricePerM").value = 80;
+    document.getElementById("grommetStep").value = 30;
+
+    showBlock("trapezoidControls", false);
+    showBlock("archControls", false);
+    showBlock("angledRightControls", false);
+
+    calcSoftWindow();
+  }
+
+  /* ============================================
+    ИНИЦИАЛИЗАЦИЯ
+  ============================================ */
+  document.addEventListener("DOMContentLoaded", () => {
+    loadOrderFromStorage();
+    calcSoftWindow();
+  });
+</script>
+
+<script>
+  /* ==============================
+    ЛОГИН ЧЕРЕЗ /api/login
+  ============================== */
+  async function checkLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    const err = document.getElementById('login-error');
+
+    if (!u || !p) {
+      err.textContent = 'Введите логин и пароль';
+      return;
+    }
+
+    err.textContent = 'Проверяю...';
+
+    try {
+      const resp = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: u, pass: p })
+      });
+
+      const data = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        // сюда придут сообщения типа "Неверный логин" или "Слишком много сессий"
+        err.textContent = data.error || 'Неверный логин или пароль';
+        return;
+      }
+
+      // успех
+      err.textContent = '';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+
+      if (typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    } catch (e) {
+      console.error(e);
+      err.textContent = 'Ошибка соединения с сервером';
+    }
+  }
+
+  // логин по Enter
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+      checkLogin();
+    }
+  });
+
+
+  /* ==============================
+    ТАБЫ СПРАВА
+  ============================== */
+  (function initTabs() {
+    const tabs = Array.from(document.querySelectorAll('.soft-tab'));
+    const panels = Array.from(document.querySelectorAll('.soft-tab-panel'));
+
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const name = tab.dataset.tab;
+        tabs.forEach(t => t.classList.toggle('soft-tab--active', t === tab));
+        panels.forEach(p => p.classList.toggle('soft-tab-panel--active', p.dataset.panel === name));
+      });
+    });
+  })();
+
+
+  /* ==============================
+    ВЫБОР ФОРМЫ ЧЕРЕЗ КАРТОЧКИ
+  ============================== */
+  (function initShapeCards() {
+    const cards = Array.from(document.querySelectorAll('.shape-card'));
+    const shapeSelect = document.getElementById('shape');
+
+    if (!cards.length || !shapeSelect) return;
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const shape = card.dataset.shape;
+
+        // визуально
+        cards.forEach(c => c.classList.toggle('shape-card--active', c === card));
+
+        // в реальный селект
+        shapeSelect.value = shape;
+
+        // показать/скрыть доп. поля
+        showBlock('trapezoidControls', shape === 'trapezoid');
+        showBlock('archControls', shape === 'arch');
+        showBlock('angledRightControls', shape === 'angledRight');
+
+        if (typeof calcSoftWindow === 'function') {
+          calcSoftWindow();
+        }
+      });
+    });
+  })();
+
+
+  /* ==============================
+    МАТЕРИАЛ — ПИЛЮЛИ
+  ============================== */
+  (function initMaterialPills() {
+    const pills = Array.from(document.querySelectorAll('#material-pills .pill'));
+    const select = document.getElementById('material');
+    const priceLabel = document.getElementById('material-price-label');
+
+    if (!pills.length || !select) return;
+
+    function setMaterial(val) {
+      select.value = val;
+      const opt = select.selectedOptions[0];
+      if (opt && priceLabel) {
+        priceLabel.textContent = (opt.dataset.price || '0') + ' ₽/м²';
+      }
+      if (typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    }
+
+    pills.forEach(p => {
+      p.addEventListener('click', () => {
+        const val = p.dataset.material;
+        pills.forEach(x => x.classList.toggle('pill--active', x === p));
+        setMaterial(val);
+      });
+    });
+
+    // стартовое состояние
+    const active = pills.find(p => p.classList.contains('pill--active'));
+    if (active) setMaterial(active.dataset.material);
+  })();
+
+
+  /* ==============================
+    ОКАНТОВКА — ЦВЕТ И ЦЕНА
+    (цвет пока только как визуальная опция)
+  ============================== */
+  (function initEdgingPills() {
+    const pricePills = Array.from(document.querySelectorAll('#edging-price-pills .pill'));
+    const edgingInput = document.getElementById('edgingPricePerM');
+
+    if (pricePills.length && edgingInput) {
+      pricePills.forEach(p => {
+        p.addEventListener('click', () => {
+          pricePills.forEach(x => x.classList.toggle('pill--active', x === p));
+          const price = +p.dataset.price || 0;
+          edgingInput.value = price;
+          if (typeof calcSoftWindow === 'function') {
+            calcSoftWindow();
+          }
+        });
+      });
+    }
+
+    const colorPills = Array.from(document.querySelectorAll('#edging-color-row .pill'));
+    if (colorPills.length) {
+      colorPills.forEach(p => {
+        p.addEventListener('click', () => {
+          colorPills.forEach(x => x.classList.toggle('pill--active', x === p));
+          // здесь можно потом добавить влияние цвета на цену
+        });
+      });
+    }
+  })();
+
+
+  /* ==============================
+    ФУРНИТУРА — ТУМБЛЕРЫ И ПИЛЮЛИ
+    (частично влияет на шаг люверсов)
+  ============================== */
+    (function initHardware() {
+    // Молния
+    const toggleZipper = document.getElementById('toggle-zipper');
+    if (toggleZipper) {
+      toggleZipper.addEventListener('click', () => {
+        toggleZipper.classList.toggle('toggle--on');
+        windowState.hasZipper = toggleZipper.classList.contains('toggle--on');
+        if (typeof calcSoftWindow === 'function') calcSoftWindow();
+      });
+    }
+
+    // Заплатки (кол-во)
+    const patchPills = Array.from(document.querySelectorAll('#patch-count-pills .pill'));
+    if (patchPills.length) {
+      patchPills.forEach(p => {
+        p.addEventListener('click', () => {
+          patchPills.forEach(x => x.classList.toggle('pill--active', x === p));
+          // если есть ручные координаты — они главнее, но количество тоже обновим
+          windowState.patchCount = +p.dataset.patches || 0;
+          if (typeof calcSoftWindow === 'function') calcSoftWindow();
+        });
+      });
+    }
+
+    // Вырезы (кол-во)
+    const cutoutPills = Array.from(document.querySelectorAll('#cutout-count-pills .pill'));
+    if (cutoutPills.length) {
+      cutoutPills.forEach(p => {
+        p.addEventListener('click', () => {
+          cutoutPills.forEach(x => x.classList.toggle('pill--active', x === p));
+          windowState.sideCutouts = +p.dataset.cutouts || 0;
+          if (typeof calcSoftWindow === 'function') calcSoftWindow();
+        });
+      });
+    }
+
+    // --- РУЧНЫЕ КООРДИНАТЫ ---
+
+    const patchInput = document.getElementById('patchPositionsInput');
+    if (patchInput) {
+      patchInput.addEventListener('input', () => {
+        const raw = patchInput.value.trim();
+        windowState.patchPositions = parsePositionsCm(raw);
+        if (typeof calcSoftWindow === 'function') calcSoftWindow();
+      });
+    }
+
+        const cutoutInput = document.getElementById('cutoutPositionsInput');
+    if (cutoutInput) {
+      cutoutInput.addEventListener('input', () => {
+        const raw = cutoutInput.value.trim();
+        windowState.cutoutPositions = parsePositionsCm(raw);
+        if (typeof calcSoftWindow === 'function') calcSoftWindow();
+      });
+    }
+
+    // --- КАРМАН ПОД УТЯЖЕЛИТЕЛЬ ---
+    const pocketPills = Array.from(document.querySelectorAll('#pocket-size-pills .pill'));
+    if (pocketPills.length) {
+      pocketPills.forEach(p => {
+        p.addEventListener('click', () => {
+          pocketPills.forEach(x => x.classList.toggle('pill--active', x === p));
+
+          const val = +p.dataset.pocket || 0;
+          if (val === 0) {
+            // Нет кармана
+            windowState.hasPocket = false;
+            windowState.pocketSize = null;
+          } else {
+            windowState.hasPocket = true;
+            windowState.pocketSize = val; // 3 / 4 / 5
+          }
+
+          if (typeof calcSoftWindow === 'function') calcSoftWindow();
+        });
+      });
+    }
+  })();
+
+  /* ==============================
+    ВАРИАНТ УСТАНОВКИ — ШАГ КРЕПЛЕНИЙ
+  ============================== */
+  (function initMount() {
+    const stepPills = Array.from(document.querySelectorAll('#mount-step-pills .pill'));
+    const grommetInput = document.getElementById('grommetStep');
+
+    if (stepPills.length && grommetInput) {
+      stepPills.forEach(p => {
+        p.addEventListener('click', () => {
+          stepPills.forEach(x => x.classList.toggle('pill--active', x === p));
+          const step = +p.dataset.step || 30;
+          grommetInput.value = step;
+          if (typeof calcSoftWindow === 'function') {
+            calcSoftWindow();
+          }
+        });
+      });
+    }
+
+    // тумблеры "крепление сверху / по бокам" — пока визуал
+    const tTop = document.getElementById('toggle-mount-top');
+    const tSides = document.getElementById('toggle-mount-sides');
+
+    [tTop, tSides].forEach(t => {
+      if (!t) return;
+      t.addEventListener('click', () => {
+        t.classList.toggle('toggle--on');
+      });
+    });
+  })();
+
+
+  /* ==============================
+    ЛЕВАЯ ВЕРТИКАЛЬНАЯ ПАНЕЛЬ
+  ============================== */
+  function openZippersModal() {
+    const m = document.getElementById('tab-zippers');
+    if (m) m.classList.add('active');
+  }
+
+  function closeZippersModal() {
+    const m = document.getElementById('tab-zippers');
+    if (m) m.classList.remove('active');
+  }
+
+  (function initSidebar() {
+    const items = Array.from(document.querySelectorAll('.soft-sidebar__item'));
+    if (!items.length) return;
+
+    function openTab(name) {
+      const tab = document.querySelector(`.soft-tab[data-tab="${name}"]`);
+      if (tab) tab.click();
+    }
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        items.forEach(x => x.classList.toggle('soft-sidebar__item--active', x === item));
+        const type = item.dataset.sidebar;
+
+        // Молния
+        if (type === 'zipper') {
+          openTab('hardware');
+          openZippersModal();
+          
+          const t = document.getElementById('toggle-zipper');
+          if (t && !t.classList.contains('toggle--on')) {
+            t.classList.add('toggle--on');
+            windowState.hasZipper = true;
+            if (typeof calcSoftWindow === 'function') calcSoftWindow();
+          }
+        }
+
+        // Юбка
+        if (type === 'skirt') {
+          const input = document.getElementById('skirtHeightInput');
+          if (input) {
+            input.focus();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+
+        // Вырез
+        if (type === 'cutouts') {
+          openTab('hardware');
+          const input = document.getElementById('cutoutPositionsInput');
+          if (input) {
+            input.focus();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+
+        // Карман — пока просто кидаем в "Фурнитура"
+        if (type === 'pocket') {
+          openPocketModal();
+        }
+
+        // Дверь — логично отправить в "Вариант установки"
+        if (type === 'door') {
+          openTab('mount');
+        }
+      });
+    });
+  })();
+
+  (function initResultTabs() {
+    const tabs = Array.from(document.querySelectorAll('.result-tab'));
+    const windowView = document.getElementById('result-window');
+    const orderView = document.getElementById('result-order');
+
+    if (!tabs.length || !windowView || !orderView) return;
+
+    function setView(name) {
+      tabs.forEach(t => t.classList.toggle(
+        'result-tab--active',
+        t.dataset.view === name
+      ));
+      windowView.classList.toggle('result-view--active', name === 'window');
+      orderView.classList.toggle('result-view--active', name === 'order');
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => setView(tab.dataset.view));
+    });
+
+    setView('window');
+  })();
+
+
+  /* ==============================
+    ПАНЕЛЬ "СТОИМОСТЬ" СВЕРХУ
+  ============================== */
+  (function initCostsPanel() {
+    const panel   = document.getElementById('costs-panel');
+    const backdrop = document.getElementById('costs-backdrop');
+    const btn     = document.getElementById('costs-toggle');
+    const btnClose = document.getElementById('costs-close');
+    const materialSelect = document.getElementById('material');
+
+    if (!panel || !btn || !materialSelect || !backdrop) return;
+
+    function openCosts() {
+      panel.style.display = "block";
+      backdrop.style.display = "block";
+    }
+
+    function closeCosts() {
+      panel.style.display = "none";
+      backdrop.style.display = "none";
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = panel.style.display === 'block';
+      if (isOpen) {
+        closeCosts();
+      } else {
+        openCosts();
+      }
+    });
+
+    if (btnClose) btnClose.addEventListener('click', closeCosts);
+    backdrop.addEventListener('click', closeCosts);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCosts();
+    });
+
+    // поля с ценами материалов
+    const priceInputs = {
+      pvc08:     document.getElementById('price-pvc08'),
+      pvc10:     document.getElementById('price-pvc10'),
+      softglass: document.getElementById('price-softglass')
+    };
+
+    const materialPriceLabel = document.getElementById('material-price-label');
+
+    function syncMaterialPrices() {
+      Array.from(materialSelect.options).forEach(opt => {
+        const key = opt.value;
+        const input = priceInputs[key];
+        if (!input) return;
+        const val = +input.value || 0;
+        opt.dataset.price = val;
+        if (opt.selected && materialPriceLabel) {
+          materialPriceLabel.textContent = val + ' ₽/м²';
+        }
+      });
+
+      if (typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    }
+
+    Object.values(priceInputs).forEach(input => {
+      if (!input) return;
+      input.addEventListener('input', syncMaterialPrices);
+    });
+
+    // окантовка: панель -> скрытый input edgingPricePerM
+    const edgingHidden = document.getElementById('edgingPricePerM');
+    const edgingControl = document.getElementById('edgingPriceControl');
+
+    if (edgingHidden && edgingControl) {
+      // стартовое значение в панель
+      edgingControl.value = edgingHidden.value || edgingControl.value;
+
+      edgingControl.addEventListener('input', () => {
+        edgingHidden.value = edgingControl.value;
+        if (typeof calcSoftWindow === 'function') {
+          calcSoftWindow();
+        }
+      });
+    }
+
+    // при загрузке один раз синхронизируем цены
+    syncMaterialPrices();
+  })();
+
+  (function initZippersTab() {
+    const modal = document.getElementById('tab-zippers');
+    const closeBtn = document.getElementById('zippersClose');
+    const countOptions = document.querySelectorAll('.zip-option');
+    const colorOptions = document.querySelectorAll('.zip-color-option');
+
+    let selectedCount = windowState.zippersCount || 0;
+    let selectedColor = windowState.zippersColor || 'black';
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeZippersModal);
+    }
+
+    // выбор количества
+    countOptions.forEach(el => {
+      el.addEventListener('click', () => {
+        countOptions.forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        selectedCount = +el.dataset.count;
+      });
+    });
+
+    // выбор цвета
+    colorOptions.forEach(el => {
+      el.addEventListener('click', () => {
+        colorOptions.forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        selectedColor = el.dataset.color;
+      });
+    });
+
+    // ПРИМЕНИТЬ
+    document.getElementById('applyZippers').addEventListener('click', () => {
+      windowState.zippersCount = selectedCount;
+      windowState.zippersColor = selectedColor;
+      calcSoftWindow();
+      closeZippersModal();
+    });
+
+    // ОЧИСТИТЬ
+    document.getElementById('clearZippers').addEventListener('click', () => {
+      windowState.zippersCount = 0;
+      windowState.zippersColor = 'black';
+
+      countOptions.forEach(x => x.classList.remove('active'));
+      colorOptions.forEach(x => x.classList.remove('active'));
+
+      calcSoftWindow();
+      closeZippersModal();
+    });
+  })();
+
+  (function initPocketTab() {
+    const modal    = document.getElementById('tab-pocket');
+    if (!modal) return;
+
+    const closeBtn = document.getElementById('pocketClose');
+    const options  = document.querySelectorAll('.pocket-option');
+    const applyBtn = document.getElementById('applyPocket');
+    const clearBtn = document.getElementById('clearPocket');
+
+    let selectedSize = windowState.pocketSize || 0;
+
+    // выбор размера
+    options.forEach(el => {
+      el.addEventListener('click', () => {
+        options.forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        selectedSize = +el.dataset.size || 0;
+      });
+    });
+
+    // применить
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        if (selectedSize > 0) {
+          windowState.hasPocket  = true;
+          windowState.pocketSize = selectedSize;
+        } else {
+          windowState.hasPocket  = false;
+          windowState.pocketSize = null;
+        }
+        if (typeof calcSoftWindow === 'function') calcSoftWindow();
+        closePocketModal();
+      });
+    }
+
+    // очистить
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        windowState.hasPocket  = false;
+        windowState.pocketSize = null;
+        options.forEach(x => x.classList.remove('active'));
+        if (typeof calcSoftWindow === 'function') calcSoftWindow();
+        closePocketModal();
+      });
+    }
+
+    // закрытие по крестику
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePocketModal);
+    }
+  })();
+
+  (function initHardwareFasteners() {
+    const items = Array.from(document.querySelectorAll('.hardware-item'));
+    const label = document.getElementById('hardware-selected-label');
+
+    if (!items.length) return;
+
+    function selectItem(item) {
+      items.forEach(i => i.classList.remove('hardware-item--active'));
+      item.classList.add('hardware-item--active');
+
+      const type  = item.dataset.type || 'grommet10';
+      const price = +item.dataset.price || 0;
+      const titleEl = item.querySelector('.hardware-item__title');
+      const title = titleEl ? titleEl.textContent.trim() : 'Крепление';
+
+      windowState.hardwareType = type;
+      windowState.hardwarePricePerPiece = price;
+
+      if (label) {
+        label.textContent = `${title} · ${price} ₽/шт`;
+      }
+
+      if (typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    }
+
+    items.forEach(item => {
+      item.addEventListener('click', () => selectItem(item));
+    });
+
+    // стартовое состояние — первый активный или первый в списке
+    const current = document.querySelector('.hardware-item--active') || items[0];
+    if (current) selectItem(current);
+  })();
+
+  (function initHardwareAdvancedToggle() {
+    const toggle = document.getElementById('hardware-advanced-toggle');
+    const block  = document.getElementById('hardware-advanced');
+    if (!toggle || !block) return;
+
+    toggle.addEventListener('click', () => {
+      block.classList.toggle('hardware-advanced--open');
+    });
+  })();
+
+  function openPocketModal() {
+    const m = document.getElementById('tab-pocket');
+    if (m) m.style.display = 'block';
+  }
+
+  function closePocketModal() {
+    const m = document.getElementById('tab-pocket');
+    if (m) m.style.display = 'none';
+  }
+</script>
+</body>
+</html>
