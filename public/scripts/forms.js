@@ -204,13 +204,6 @@ function initSidebar() {
 
       if (type === 'zipper') {
         openZippersModal();
-
-        const t = document.getElementById('toggle-zipper');
-        if (t && !t.classList.contains('toggle--on')) {
-          t.classList.add('toggle--on');
-          windowState.hasZipper = true;
-          if (typeof calcSoftWindow === 'function') calcSoftWindow();
-        }
       }
 
       if (type === 'skirt') {

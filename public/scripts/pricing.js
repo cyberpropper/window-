@@ -138,6 +138,7 @@ function calcSoftWindow() {
     sideCutouts,
     hasZipper,
     hasPocket,
+    zipperColor: windowState.zippersColor || 'black',
     pocketSize,
     patchPositions: windowState.patchPositions || [],
     cutoutPositions: windowState.cutoutPositions || []

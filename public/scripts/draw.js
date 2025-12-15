@@ -182,6 +182,7 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
   const hasZipper = !!opts.hasZipper;
   const hasPocket = !!opts.hasPocket;
   const pocketSize = opts.pocketSize;
+  const zipperColor = opts.zipperColor || 'black';
   const patchPositions = opts.patchPositions || [];
   const cutoutPositions = opts.cutoutPositions || [];
 
@@ -262,21 +263,21 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
   }
 
   if (hasZipper) {
-    const TAPE_WIDTH_CM = 3;
-    const GAP_CM = 1;
-    const HEAD_SIZE_CM = 4;
+    const TAPE_WIDTH_CM = 4;      // толщина каждой ленты молнии
+    const STRIPE_WIDTH_CM = 1;    // белая полоса между лентами
 
     const tapeWidth = TAPE_WIDTH_CM * scale;
-    const gap = GAP_CM * scale;
-    const headSize = HEAD_SIZE_CM * scale;
+    const stripeWidth = STRIPE_WIDTH_CM * scale;
+    const tapeFill = zipperColor === 'white' ? '#e5e7eb' : '#2d2d2d';
+    const stripeFill = '#ffffff';
 
     const centerX = (innerLeft + innerRight) / 2;
 
-    const leftTapeX = centerX - gap / 2 - tapeWidth;
-    const rightTapeX = centerX + gap / 2;
+    const leftTapeX = centerX - stripeWidth / 2 - tapeWidth;
+    const rightTapeX = centerX + stripeWidth / 2;
 
-    const yTop = innerTop + frameThickness;
-    const yBottom = innerBottom - frameThickness;
+    const yTop = 0; // тянем молнию во всю высоту окна
+    const yBottom = h;
 
     g.appendChild(
       makeSVG('rect', {
@@ -284,7 +285,7 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
         y: yTop,
         width: tapeWidth,
         height: yBottom - yTop,
-        fill: '#2d2d2d'
+        fill: tapeFill
       })
     );
 
@@ -294,27 +295,17 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
         y: yTop,
         width: tapeWidth,
         height: yBottom - yTop,
-        fill: '#2d2d2d'
+        fill: tapeFill
       })
     );
 
     g.appendChild(
       makeSVG('rect', {
-        x: centerX - tapeWidth - gap,
-        y: yTop - headSize,
-        width: tapeWidth * 2 + gap,
-        height: headSize,
-        fill: '#1b1b1b'
-      })
-    );
-
-    g.appendChild(
-      makeSVG('rect', {
-        x: centerX - tapeWidth - gap,
-        y: yBottom,
-        width: tapeWidth * 2 + gap,
-        height: headSize,
-        fill: '#1b1b1b'
+        x: centerX - stripeWidth / 2,
+        y: yTop,
+        width: stripeWidth,
+        height: yBottom - yTop,
+        fill: stripeFill
       })
     );
   }
