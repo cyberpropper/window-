@@ -86,11 +86,29 @@ function initEdgingPills() {
 
   const colorPills = Array.from(document.querySelectorAll('#edging-color-row .pill'));
   if (colorPills.length) {
+    const setColor = (pill, withCalc = true) => {
+      colorPills.forEach((x) => x.classList.toggle('pill--active', x === pill));
+      const colorKey = pill.dataset.color || DEFAULT_EDGING_COLOR;
+      windowState.edgingColor = colorKey;
+      windowState.zippersColor = colorKey; // синхроним цвет молнии с окантовкой
+      if (typeof window.__syncZippersUI === 'function') {
+        window.__syncZippersUI();
+      }
+      if (withCalc && typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    };
+
     colorPills.forEach((p) => {
       p.addEventListener('click', () => {
-        colorPills.forEach((x) => x.classList.toggle('pill--active', x === p));
+        setColor(p);
       });
     });
+
+    const activeColor = colorPills.find((p) => p.classList.contains('pill--active')) || colorPills[0];
+    if (activeColor) {
+      setColor(activeColor, false);
+    }
   }
 }
 

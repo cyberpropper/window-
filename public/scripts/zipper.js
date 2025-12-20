@@ -4,11 +4,6 @@ function openZippersModal() {
   if (typeof window.__syncZippersUI === 'function') {
     window.__syncZippersUI();
   }
-  const firstActive = document.querySelector('.zip-option.active');
-  if (!firstActive) {
-    const defaultOpt = document.querySelector('.zip-option[data-count="1"]');
-    if (defaultOpt) defaultOpt.classList.add('active');
-  }
 }
 
 function closeZippersModal() {
@@ -28,7 +23,7 @@ function initZippersTab() {
   const toggleZipper = document.getElementById('toggle-zipper');
 
   let selectedCount = windowState.zippersCount || 0;
-  let selectedColor = windowState.zippersColor || 'black';
+  let selectedColor = windowState.zippersColor || windowState.edgingColor || 'black';
 
   function syncToggle(on) {
     if (!toggleZipper) return;
@@ -46,9 +41,9 @@ function initZippersTab() {
 
   function syncFromState() {
     selectedCount = windowState.zippersCount || 0;
-    selectedColor = windowState.zippersColor || 'black';
+    selectedColor = windowState.zippersColor || windowState.edgingColor || 'black';
 
-    // если молния включена, но количество не выбрано — ставим 1 по умолчанию
+    // если молния включена, но количество не выбрано - ставим 1 по умолчанию
     if (windowState.hasZipper && (!selectedCount || selectedCount < 0)) {
       selectedCount = 1;
     }
@@ -70,8 +65,6 @@ function initZippersTab() {
       countOptions.forEach((x) => x.classList.remove('active'));
       el.classList.add('active');
       selectedCount = +el.dataset.count;
-      windowState.hasZipper = selectedCount > 0;
-      syncToggle(windowState.hasZipper);
     });
   });
 
@@ -85,8 +78,13 @@ function initZippersTab() {
 
   if (applyBtn) {
     applyBtn.addEventListener('click', () => {
+      if (!selectedCount || selectedCount < 0) {
+        selectedCount = 1; // если ничего не выбрали, ставим 1 по умолчанию
+      }
+
       windowState.zippersCount = selectedCount;
       windowState.zippersColor = selectedColor;
+      windowState.hasZipper = selectedCount > 0;
       
       syncToggle(windowState.hasZipper);
       if (typeof calcSoftWindow === 'function') calcSoftWindow();
@@ -98,10 +96,10 @@ function initZippersTab() {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       windowState.zippersCount = 0;
-      windowState.zippersColor = 'black';
+      windowState.zippersColor = windowState.edgingColor || 'black';
       windowState.hasZipper = false;
       selectedCount = 0;
-      selectedColor = 'black';
+      selectedColor = windowState.zippersColor;
 
       syncToggle(false);
       syncSelectedUI();

@@ -23,6 +23,12 @@ function calcSoftWindow() {
   const materialSel = document.getElementById('material');
   const materialPrice = +materialSel.selectedOptions[0].dataset.price;
   const materialName = materialSel.selectedOptions[0].innerText;
+  const edgingColorKey = windowState.edgingColor || DEFAULT_EDGING_COLOR;
+  const edgingMeta =
+    typeof getEdgingColorMeta === 'function'
+      ? getEdgingColorMeta(edgingColorKey)
+      : { label: edgingColorKey };
+  const edgingColorLabel = edgingMeta.label || edgingColorKey;
 
   if (!widthCm || !heightCm) {
     setResult('Введите размеры окна');
@@ -112,7 +118,7 @@ function calcSoftWindow() {
       Площадь: ${area.toFixed(2)} м²<br>
       Люверсов (примерно): ${grommetsCount} шт.<br>
       Плёнка: ${filmCost.toFixed(0)} ₽<br>
-      Окантовка: ${edgingCost.toFixed(0)} ₽<br>
+      Окантовка (${edgingColorLabel}): ${edgingCost.toFixed(0)} ₽<br>
       Работа: ${laborCost.toFixed(0)} ₽<br>
       ${skirtHeight > 0 ? `Юбка (${skirtHeight} см): ${skirtCost.toFixed(0)} ₽<br>` : ``}
       ${patchCount > 0 ? `Заплатки (${patchCount} шт.): ${patchCost.toFixed(0)} ₽<br>` : ``}
@@ -139,6 +145,7 @@ function calcSoftWindow() {
     hasZipper,
     hasPocket,
     zipperColor: windowState.zippersColor || 'black',
+    edgingColor: edgingColorKey,
     pocketSize,
     patchPositions: windowState.patchPositions || [],
     cutoutPositions: windowState.cutoutPositions || []
@@ -157,6 +164,8 @@ function calcSoftWindow() {
     sideCutouts,
     hasZipper,
     hasPocket,
+    edgingColor: edgingColorKey,
+    edgingColorLabel,
     pocketSize,
     total,
     materialName

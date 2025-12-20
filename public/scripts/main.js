@@ -3,6 +3,17 @@ const ORDER_STORAGE_KEY = 'softglass_order_v1';
 const FRAME_CM = 5;
 const FRAME_THICKNESS = 14; // толщина рамы в px в SVG
 
+const DEFAULT_EDGING_COLOR = 'black';
+const EDGING_COLORS = {
+  black: { label: 'Чёрная', fill: '#2a2f38', stroke: '#1f2937' },
+  white: { label: 'Белая', fill: '#e5e7eb', stroke: '#cbd5e1' },
+  brown: { label: 'Коричневая', fill: '#6b4b32', stroke: '#4b3626' }
+};
+
+function getEdgingColorMeta(key) {
+  return EDGING_COLORS[key] || EDGING_COLORS[DEFAULT_EDGING_COLOR];
+}
+
 let orderItems = [];
 let lastCalc = null; // последний расчёт из calcSoftWindow
 
@@ -19,7 +30,8 @@ const windowState = {
   hardwareType: 'grommet10',
   hardwarePricePerPiece: 44,
   zippersCount: 0,
-  zippersColor: 'black'
+  zippersColor: 'black',
+  edgingColor: DEFAULT_EDGING_COLOR
 };
 
 /* ============================================
@@ -140,6 +152,9 @@ function renderOrderList() {
   let sum = 0;
 
   orderItems.forEach((item) => {
+    const edgingMeta = getEdgingColorMeta(item.edgingColor || DEFAULT_EDGING_COLOR);
+    const edgingLabel = item.edgingColorLabel || edgingMeta.label;
+
     sum += item.total;
     html += `
       <div class="order-item">
@@ -150,7 +165,7 @@ function renderOrderList() {
             · ${item.area.toFixed(2)} м²
           </div>
           <div class="order-item__extras">
-            ${item.materialName} · ${item.extrasText}
+            ${item.materialName} · Окантовка: ${edgingLabel} · ${item.extrasText}
           </div>
         </div>
         <div class="order-item__side">
@@ -202,12 +217,16 @@ function formatOrderForCopy() {
   let sum = 0;
 
   orderItems.forEach((item, index) => {
+    const edgingMeta = getEdgingColorMeta(item.edgingColor || DEFAULT_EDGING_COLOR);
+    const edgingLabel = item.edgingColorLabel || edgingMeta.label;
+
     sum += item.total;
     lines.push(`Окно ${index + 1}:`);
     lines.push(`  Форма: ${item.shapeName}`);
     lines.push(`  Размеры: ${item.widthCm} × ${item.heightCm} см`);
     lines.push(`  Площадь: ${item.area.toFixed(2)} м²`);
     lines.push(`  Материал: ${item.materialName}`);
+    lines.push(`  Цвет окантовки: ${edgingLabel}`);
     if (item.skirtHeight > 0) {
       lines.push(`  Юбка: ${item.skirtHeight} см`);
     }

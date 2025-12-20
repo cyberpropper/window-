@@ -5,6 +5,16 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
 
   if (!widthCm || !heightCm) return;
 
+  const colorKey =
+    opts.edgingColor || (typeof DEFAULT_EDGING_COLOR !== 'undefined' ? DEFAULT_EDGING_COLOR : 'black');
+  const colorMeta =
+    (typeof getEdgingColorMeta === 'function' && getEdgingColorMeta(colorKey)) || {
+      fill: '#2a2f38',
+      stroke: '#1f2937'
+    };
+  const frameFill = colorMeta.fill || '#2a2f38';
+  const frameStroke = colorMeta.stroke || frameFill;
+
   const padding = 40;
   const maxW = 520 - padding * 2;
   const maxH = 440 - padding * 2;
@@ -47,7 +57,7 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
       y: 0,
       width: outerW,
       height: outerH,
-      fill: '#2a2f38'
+      fill: frameFill
     });
     g.appendChild(frameRect);
 
@@ -68,7 +78,7 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
         y: outerH,
         width: outerW,
         height: framePx,
-        fill: '#2a2f38'
+        fill: frameFill
       });
       g.appendChild(skirt);
     }
@@ -118,13 +128,13 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
         Z
       `,
       fill: 'url(#glassGrad)',
-      stroke: '#2a2f38',
+      stroke: frameStroke,
       'stroke-width': framePx,
       'stroke-linejoin': 'miter'
     });
     g.appendChild(path);
 
-    placeGrommetsArch(g, outerW, outerH, rectH, grommetStepPx);
+    placeGrommetsArch(g, outerW, outerH, rectH, grommetStepPx, scale);
 
     if (skirtPx > 0) {
       const skirt = makeSVG('rect', {
@@ -132,7 +142,7 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
         y: outerH,
         width: outerW,
         height: framePx,
-        fill: '#2a2f38'
+        fill: frameFill
       });
       g.appendChild(skirt);
     }
@@ -151,13 +161,13 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
     const path = makeSVG('path', {
       d,
       fill: 'url(#glassGrad)',
-      stroke: '#2a2f38',
+      stroke: frameStroke,
       'stroke-width': framePx,
       'stroke-linejoin': 'miter'
     });
     g.appendChild(path);
 
-    placeGrommetsPath(g, points, grommetStepPx);
+    placeGrommetsPath(g, points, grommetStepPx, scale);
   }
 
   if (skirtPx > 0) {
@@ -166,7 +176,7 @@ function drawShape(shape, widthCm, heightCm, opts = {}) {
       y: outerH,
       width: outerW,
       height: framePx,
-      fill: '#2a2f38'
+      fill: frameFill
     });
     g.appendChild(skirt);
   }
@@ -185,6 +195,13 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
   const zipperColor = opts.zipperColor || 'black';
   const patchPositions = opts.patchPositions || [];
   const cutoutPositions = opts.cutoutPositions || [];
+  const extrasColorKey =
+    opts.edgingColor || (typeof DEFAULT_EDGING_COLOR !== 'undefined' ? DEFAULT_EDGING_COLOR : 'black');
+  const extrasColorMeta =
+    (typeof getEdgingColorMeta === 'function' && getEdgingColorMeta(extrasColorKey)) || {
+      fill: '#2a2f38'
+    };
+  const extrasFrameFill = extrasColorMeta.fill || '#2a2f38';
 
   const innerTop = frameThickness;
   const innerBottom = h - frameThickness;
@@ -197,7 +214,7 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
       y: h,
       width: w,
       height: frameThickness,
-      fill: '#2a2f38'
+      fill: extrasFrameFill
     });
     g.appendChild(skirt);
   }
@@ -268,8 +285,8 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
 
     const tapeWidth = TAPE_WIDTH_CM * scale;
     const stripeWidth = STRIPE_WIDTH_CM * scale;
-    const tapeFill = zipperColor === 'white' ? '#e5e7eb' : '#2d2d2d';
-    const stripeFill = '#ffffff';
+    const tapeFill = extrasFrameFill; // цвет канта молнии совпадает с цветом окантовки окна
+    const stripeFill = extrasColorKey === 'white' ? '#f1f5f9' : '#ffffff';
 
     const centerX = (innerLeft + innerRight) / 2;
 
