@@ -1,4 +1,4 @@
-:root {
+﻿:root {
       --bg-main: #e9f2fb;
       --bg-card: #ffffff;
       --blue: #2c7ef4;
@@ -21,68 +21,9 @@
       color: var(--text-main);
     }
 
-    /* ============ ЭКРАН ЛОГИНА ============ */
-    #login-screen {
-      position: fixed;
-      inset: 0;
-      background: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
-
-    #login-box {
-      background: #fff;
-      padding: 22px 24px 20px;
-      border-radius: 14px;
-      box-shadow: 0 18px 40px rgba(15,23,42,.18);
-      width: 300px;
-    }
-
-    #login-box h1 {
-      font-size: 18px;
-      margin: 0 0 6px;
-    }
-
-    #login-box p {
-      font-size: 12px;
-      margin: 0 0 14px;
-      color: var(--text-muted);
-    }
-
-    #login-box input {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 7px 9px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 13px;
-    }
-
-    #login-box button {
-      width: 100%;
-      background: var(--blue);
-      border: none;
-      color: #fff;
-      padding: 8px 0;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    #login-error {
-      color: #ef4444;
-      font-size: 12px;
-      min-height: 18px;
-      margin-bottom: 4px;
-    }
-
-    /* ============ ОСНОВНОЙ КАРКАС ============ */
-
-    #app {
-      display: none;
+/* App */
+#app {
+      display: block;
     }
 
     .soft-shell {
@@ -91,7 +32,7 @@
       padding: 0 12px 20px;
     }
 
-    /* Верхняя голубая панель */
+    /* Р’РµСЂС…РЅСЏСЏ РіРѕР»СѓР±Р°СЏ РїР°РЅРµР»СЊ */
     .soft-topbar {
       height: 52px;
       background: #f5f9ff;
@@ -166,7 +107,7 @@
       color: var(--text-main);
     }
 
-    /* Основная область: слева меню, справа рабочая зона */
+    /* РћСЃРЅРѕРІРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ: СЃР»РµРІР° РјРµРЅСЋ, СЃРїСЂР°РІР° СЂР°Р±РѕС‡Р°СЏ Р·РѕРЅР° */
     .soft-main {
       display: grid;
       grid-template-columns: 86px minmax(0, 1fr);
@@ -174,7 +115,7 @@
       margin-top: 6px;
     }
 
-    /* ЛЕВОЕ ВЕРТИКАЛЬНОЕ МЕНЮ */
+    /* Р›Р•Р’РћР• Р’Р•Р РўРРљРђР›Р¬РќРћР• РњР•РќР® */
     .soft-sidebar {
       background: var(--bg-card);
       border-radius: 12px;
@@ -233,7 +174,7 @@
       color: var(--blue);
     }
 
-    /* ПРАВАЯ ЧАСТЬ: центральное окно + справа мастер вкладок */
+    /* РџР РђР’РђРЇ Р§РђРЎРўР¬: С†РµРЅС‚СЂР°Р»СЊРЅРѕРµ РѕРєРЅРѕ + СЃРїСЂР°РІР° РјР°СЃС‚РµСЂ РІРєР»Р°РґРѕРє */
     .soft-work {
       background: var(--bg-card);
       border-radius: 14px;
@@ -244,7 +185,7 @@
       gap: 12px;
     }
 
-    /* Центральная панель с окном */
+    /* Р¦РµРЅС‚СЂР°Р»СЊРЅР°СЏ РїР°РЅРµР»СЊ СЃ РѕРєРЅРѕРј */
     .soft-center {
       display: flex;
       flex-direction: column;
@@ -291,7 +232,7 @@
       padding: 8px;
     }
 
-    /* Левая подпанель настроек в центре (форма + размеры + базовые настройки) */
+    /* Р›РµРІР°СЏ РїРѕРґРїР°РЅРµР»СЊ РЅР°СЃС‚СЂРѕРµРє РІ С†РµРЅС‚СЂРµ (С„РѕСЂРјР° + СЂР°Р·РјРµСЂС‹ + Р±Р°Р·РѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё) */
     .soft-center__grid {
       display: grid;
       grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
@@ -410,7 +351,7 @@
       font-weight: 500;
     }
 
-    /* Активная вкладка — белая «таблетка» */
+    /* РђРєС‚РёРІРЅР°СЏ РІРєР»Р°РґРєР° вЂ” Р±РµР»Р°СЏ В«С‚Р°Р±Р»РµС‚РєР°В» */
     .result-tab--active {
       background: #ffffff;
       color: #1d4ed8;
@@ -418,19 +359,19 @@
     }
 
 
-    /* Контент под вкладками */
+    /* РљРѕРЅС‚РµРЅС‚ РїРѕРґ РІРєР»Р°РґРєР°РјРё */
     .result-view {
       display: none;
       margin-top: 4px;
       padding-top: 4px;
     }
 
-    /* показываем активную */
+    /* РїРѕРєР°Р·С‹РІР°РµРј Р°РєС‚РёРІРЅСѓСЋ */
     .result-view--active {
       display: block;
     }
 
-    /* подпись «итого по заказу» во вкладке Заказ */
+    /* РїРѕРґРїРёСЃСЊ В«РёС‚РѕРіРѕ РїРѕ Р·Р°РєР°Р·СѓВ» РІРѕ РІРєР»Р°РґРєРµ Р—Р°РєР°Р· */
     .order-tab-footer {
       display: flex;
       justify-content: space-between;
@@ -442,7 +383,7 @@
       font-weight: 500;
     }
 
-    /* ПРАВЫЙ МАСТЕР ВКЛАДОК */
+    /* РџР РђР’Р«Р™ РњРђРЎРўР•Р  Р’РљР›РђР”РћРљ */
     .soft-right {
       display: flex;
       flex-direction: column;
@@ -670,7 +611,7 @@
       justify-content: center;
     }
 
-    /* Нижняя полоска (площадь и т.п.) */
+    /* РќРёР¶РЅСЏСЏ РїРѕР»РѕСЃРєР° (РїР»РѕС‰Р°РґСЊ Рё С‚.Рї.) */
     .soft-bottom {
       margin-top: 8px;
       font-size: 11px;
@@ -694,7 +635,7 @@
       font-size: 10px;
     }
 
-    /* Скрываем селект формы — его дёргают карточки */
+    /* РЎРєСЂС‹РІР°РµРј СЃРµР»РµРєС‚ С„РѕСЂРјС‹ вЂ” РµРіРѕ РґС‘СЂРіР°СЋС‚ РєР°СЂС‚РѕС‡РєРё */
     #shape {
       position: absolute;
       left: -9999px;
@@ -734,7 +675,7 @@
       padding:12px 14px;
       box-shadow:0 6px 18px rgba(15,23,42,.04);
       max-width:1080px;
-      margin:10px auto 20px; /* было 0 auto 20px */
+      margin:10px auto 20px; /* Р±С‹Р»Рѕ 0 auto 20px */
       font-size:13px;
     }
 
@@ -841,12 +782,12 @@
       display: none;
     }
 
-    /* Само окно */
+    /* РЎР°РјРѕ РѕРєРЅРѕ */
     .costs-panel {
       position: fixed;
       top: 60px;
       right: 20px;
-      width: 340px;
+      width: 480px;
       background: #fff;
       z-index: 999;
       border-radius: 14px;
@@ -880,46 +821,63 @@
       font-size: 14px;
     }
 
-    .costs-panel__grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .costs-panel h3 {
-      margin: 0 0 6px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .costs-field {
+    .costs-panel__editor {
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      margin-bottom: 6px;
+      gap: 10px;
     }
 
-    .costs-field label {
-      font-size: 11px;
-      color: #475569;
-    }
-
-    .costs-field input {
-      padding: 4px 6px;
+    .costs-panel__note {
       font-size: 12px;
-      border-radius: 6px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .costs-panel__editor textarea {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .costs-panel__actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .costs-panel__actions input {
+      flex: 1 1 140px;
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 8px;
       border: 1px solid #cbd5e1;
     }
 
-    .costs-panel small {
-      color: #94a3b8;
-      font-size: 11px;
+    .btn-secondary-small {
+      background: #e5e7eb;
+      border: none;
+      color: #111827;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
     }
 
-    @media (max-width: 900px) {
-      .costs-panel__grid {
-        grid-template-columns: 1fr;
-      }
+    .costs-panel__status {
+      font-size: 12px;
+      color: #16a34a;
+      min-height: 18px;
+    }
+
+    .costs-panel__status--error {
+      color: #ef4444;
     }
 
     .tab-content {
@@ -983,7 +941,7 @@
     }
 
 
-    /* модалка настроек кармана */
+    /* РјРѕРґР°Р»РєР° РЅР°СЃС‚СЂРѕРµРє РєР°СЂРјР°РЅР° */
     #tab-pocket {
       position: fixed;
       inset: 0;
@@ -992,11 +950,11 @@
       z-index: 1000;
     }
 
-    #tab-pocket .pocket-inner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+#tab-pocket .pocket-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
       background: #fff;
       border-radius: 16px;
       padding: 20px 24px;
@@ -1017,7 +975,7 @@
     }
 
 
-    /* модалка настроек молнии */
+    /* РјРѕРґР°Р»РєР° РЅР°СЃС‚СЂРѕРµРє РјРѕР»РЅРёРё */
     #tab-zippers {
       position: fixed;
       inset: 0;
@@ -1055,7 +1013,7 @@
       cursor: pointer;
     }
 
-    /* Оверлей для модалок (молния / карман) */
+    /* РћРІРµСЂР»РµР№ РґР»СЏ РјРѕРґР°Р»РѕРє (РјРѕР»РЅРёСЏ / РєР°СЂРјР°РЅ) */
     #tab-zippers{
       position: fixed;
       inset: 0;
@@ -1064,7 +1022,7 @@
       display: none;
     }
 
-    /* Внутренняя карточка кармана */
+    /* Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РєР°СЂС‚РѕС‡РєР° РєР°СЂРјР°РЅР° */
     #tab-pocket .pocket-inner {
       position: absolute;
       top: 50%;
@@ -1180,7 +1138,7 @@
       font-weight: 500;
     }
 
-    /* доп. блок */
+    /* РґРѕРї. Р±Р»РѕРє */
     .hardware-advanced-toggle {
       margin-top: 4px;
       font-size: 11px;
@@ -1199,3 +1157,58 @@
     .hardware-advanced.hardware-advanced--open {
       display: block;
     }
+
+#tab-skirt {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.35);
+    display: none;
+    z-index: 1000;
+}
+#tab-skirt.active {
+    display: block;
+}
+#tab-skirt .pocket-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 18px 40px rgba(15,23,42,.25);
+    min-width: 260px;
+}
+#skirtClose {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+}
+
+/* Cutouts/Patches modal */
+#tab-cutouts {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.35);
+    display: none;
+    z-index: 1000;
+}
+#tab-cutouts.active {
+    display: block;
+}
+#tab-cutouts .pocket-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 18px 40px rgba(15,23,42,.25);
+    min-width: 260px;
+}
+#cutoutsClose {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+}

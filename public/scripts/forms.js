@@ -27,8 +27,7 @@ function initShapeCards() {
       shapeSelect.value = shape;
 
       showBlock('trapezoidControls', shape === 'trapezoid');
-      showBlock('archControls', shape === 'arch');
-      showBlock('angledRightControls', shape === 'angledRight');
+      showBlock('angledRightControls', shape === 'angledRight' || shape === 'angledLeft');
 
       if (typeof calcSoftWindow === 'function') {
         calcSoftWindow();
@@ -48,7 +47,7 @@ function initMaterialPills() {
     select.value = val;
     const opt = select.selectedOptions[0];
     if (opt && priceLabel) {
-      priceLabel.textContent = (opt.dataset.price || '0') + ' ₽/м²';
+      priceLabel.textContent = (opt.dataset.price || '0') + ' per m2';
     }
     if (typeof calcSoftWindow === 'function') {
       calcSoftWindow();
@@ -204,11 +203,34 @@ function initMount() {
   const tSides = document.getElementById('toggle-mount-sides');
 
   [tTop, tSides].forEach((t) => {
-    if (!t) return;
+    if (!t || t.dataset.bound === '1') return;
+    t.dataset.bound = '1';
     t.addEventListener('click', () => {
       t.classList.toggle('toggle--on');
     });
   });
+}
+
+function initSkirtPills() {
+  const pills = Array.from(document.querySelectorAll('#skirt-pills .pill'));
+  const input = document.getElementById('skirtHeightInput');
+  if (!pills.length || !input) return;
+
+  const setVal = (cm) => {
+    windowState.skirtHeight = cm;
+    input.value = cm;
+    pills.forEach((p) => p.classList.toggle('pill--active', +p.dataset.skirt === cm));
+    if (typeof calcSoftWindow === 'function') calcSoftWindow();
+  };
+
+  pills.forEach((p) => {
+    p.addEventListener('click', () => setVal(+p.dataset.skirt || 0));
+  });
+
+  // Init with current input value or first pill
+  const current = +input.value || 0;
+  const pill = pills.find((p) => +p.dataset.skirt === current) || pills[0];
+  if (pill) setVal(+pill.dataset.skirt || 0);
 }
 
 function initSidebar() {
@@ -225,19 +247,11 @@ function initSidebar() {
       }
 
       if (type === 'skirt') {
-        const input = document.getElementById('skirtHeightInput');
-        if (input) {
-          input.focus();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        openSkirtModal();
       }
 
       if (type === 'cutouts') {
-        const input = document.getElementById('cutoutPositionsInput');
-        if (input) {
-          input.focus();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        openCutoutsModal();
       }
 
       if (type === 'pocket') {
@@ -273,88 +287,6 @@ function initResultTabs() {
   setView('window');
 }
 
-function initCostsPanel() {
-  const panel = document.getElementById('costs-panel');
-  const backdrop = document.getElementById('costs-backdrop');
-  const btn = document.getElementById('costs-toggle');
-  const btnClose = document.getElementById('costs-close');
-  const materialSelect = document.getElementById('material');
-
-  if (!panel || !btn || !materialSelect || !backdrop) return;
-
-  function openCosts() {
-    panel.style.display = 'block';
-    backdrop.style.display = 'block';
-  }
-
-  function closeCosts() {
-    panel.style.display = 'none';
-    backdrop.style.display = 'none';
-  }
-
-  btn.addEventListener('click', () => {
-    const isOpen = panel.style.display === 'block';
-    if (isOpen) {
-      closeCosts();
-    } else {
-      openCosts();
-    }
-  });
-
-  if (btnClose) btnClose.addEventListener('click', closeCosts);
-  backdrop.addEventListener('click', closeCosts);
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeCosts();
-  });
-
-  const priceInputs = {
-    pvc08: document.getElementById('price-pvc08'),
-    pvc10: document.getElementById('price-pvc10'),
-    softglass: document.getElementById('price-softglass')
-  };
-
-  const materialPriceLabel = document.getElementById('material-price-label');
-
-  function syncMaterialPrices() {
-    Array.from(materialSelect.options).forEach((opt) => {
-      const key = opt.value;
-      const input = priceInputs[key];
-      if (!input) return;
-      const val = +input.value || 0;
-      opt.dataset.price = val;
-      if (opt.selected && materialPriceLabel) {
-        materialPriceLabel.textContent = val + ' ₽/м²';
-      }
-    });
-
-    if (typeof calcSoftWindow === 'function') {
-      calcSoftWindow();
-    }
-  }
-
-  Object.values(priceInputs).forEach((input) => {
-    if (!input) return;
-    input.addEventListener('input', syncMaterialPrices);
-  });
-
-  const edgingHidden = document.getElementById('edgingPricePerM');
-  const edgingControl = document.getElementById('edgingPriceControl');
-
-  if (edgingHidden && edgingControl) {
-    edgingControl.value = edgingHidden.value || edgingControl.value;
-
-    edgingControl.addEventListener('input', () => {
-      edgingHidden.value = edgingControl.value;
-      if (typeof calcSoftWindow === 'function') {
-        calcSoftWindow();
-      }
-    });
-  }
-
-  syncMaterialPrices();
-}
-
 function initHardwareFasteners() {
   const items = Array.from(document.querySelectorAll('.hardware-item'));
   const label = document.getElementById('hardware-selected-label');
@@ -368,13 +300,13 @@ function initHardwareFasteners() {
     const type = item.dataset.type || 'grommet10';
     const price = +item.dataset.price || 0;
     const titleEl = item.querySelector('.hardware-item__title');
-    const title = titleEl ? titleEl.textContent.trim() : 'Крепление';
+    const title = titleEl ? titleEl.textContent.trim() : 'Hardware';
 
     windowState.hardwareType = type;
     windowState.hardwarePricePerPiece = price;
 
     if (label) {
-      label.textContent = `${title} · ${price} ₽/шт`;
+      label.textContent = title + ' | ' + price + ' per pc';
     }
 
     if (typeof calcSoftWindow === 'function') {
@@ -404,7 +336,75 @@ function initSizePills() {
   const svg = document.getElementById('preview');
   if (!svg) return;
 
+  const placementHint = document.getElementById('placement-hint');
+
+  window.__placementPoints = [];
+
+  function setPlacementMode(mode) {
+    window.__placementMode = mode;
+    window.__placementPoints = [];
+    if (placementHint) {
+      placementHint.textContent = mode
+        ? `Режим: ${mode === 'cutout' ? 'вырез' : 'заплатка'}. Кликните по макету.`
+        : '';
+    }
+    if (typeof window.renderTempPolygonOverlay === 'function') {
+      window.renderTempPolygonOverlay();
+    }
+  }
+
+  function syncPositionsInputs() {
+    const patchInput = document.getElementById('patchPositionsInput');
+    const cutoutInput = document.getElementById('cutoutPositionsInput');
+    if (patchInput) {
+      patchInput.value = (windowState.patchPositions || [])
+        .map((p) => `${(p.xCm || 0).toFixed(1)},${(p.yCm || 0).toFixed(1)}`)
+        .join('; ');
+    }
+    if (cutoutInput) {
+      cutoutInput.value = (windowState.cutoutPositions || [])
+        .map((p) => `${(p.xCm || 0).toFixed(1)},${(p.yCm || 0).toFixed(1)}`)
+        .join('; ');
+    }
+  }
+
+  function handlePlacementClick(e) {
+    const mode = window.__placementMode;
+    const meta = window.__lastDrawMeta;
+    if (!mode || !meta) return;
+
+    const vb = svg.viewBox.baseVal;
+    const rect = svg.getBoundingClientRect();
+    const xView = ((e.clientX - rect.left) / rect.width) * vb.width;
+    const yView = ((e.clientY - rect.top) / rect.height) * vb.height;
+
+    const padding = meta.padding || 0;
+    const scale = meta.scale || 1;
+    const xPx = xView - padding;
+    const yPx = yView - padding;
+    if (xPx < 0 || yPx < 0) {
+      setPlacementMode(null);
+      return;
+    }
+    const xCm = +(xPx / scale).toFixed(1);
+    const yCm = +(yPx / scale).toFixed(1);
+    if (xCm < 0 || yCm < 0) {
+      setPlacementMode(null);
+      return;
+    }
+
+    window.__placementPoints = [...(window.__placementPoints || []), { xCm, yCm }];
+    if (typeof window.renderTempPolygonOverlay === 'function') {
+      window.renderTempPolygonOverlay();
+    }
+  }
+
   svg.addEventListener('click', (e) => {
+    if (window.__placementMode) {
+      handlePlacementClick(e);
+      return;
+    }
+
     let el = e.target;
 
     if (el.nodeType !== 1) {
@@ -436,6 +436,112 @@ function initSizePills() {
       calcSoftWindow();
     }
   });
+
+  const btnCutout = document.getElementById('place-cutout-btn');
+  const btnPatch = document.getElementById('place-patch-btn');
+  const btnCancel = document.getElementById('place-cancel-btn');
+  const btnUndo = document.getElementById('place-undo-btn');
+  const btnFinish = document.getElementById('place-finish-btn');
+
+  if (btnCutout) {
+    btnCutout.addEventListener('click', () => setPlacementMode('cutout'));
+  }
+  if (btnPatch) {
+    btnPatch.addEventListener('click', () => setPlacementMode('patch'));
+  }
+  if (btnCancel) {
+    btnCancel.addEventListener('click', () => setPlacementMode(null));
+  }
+  if (btnUndo) {
+    btnUndo.addEventListener('click', () => {
+      window.__placementPoints = (window.__placementPoints || []).slice(0, -1);
+      if (typeof window.renderTempPolygonOverlay === 'function') window.renderTempPolygonOverlay();
+    });
+  }
+  if (btnFinish) {
+    btnFinish.addEventListener('click', () => {
+      const pts = window.__placementPoints || [];
+      const mode = window.__placementMode;
+      if (!mode || pts.length < 3) {
+        setPlacementMode(null);
+        return;
+      }
+      const poly = { points: pts };
+      if (mode === 'cutout') {
+        windowState.cutoutPolygons = [...(windowState.cutoutPolygons || []), poly];
+      } else {
+        windowState.patchPolygons = [...(windowState.patchPolygons || []), poly];
+      }
+      setPlacementMode(null);
+      if (typeof calcSoftWindow === 'function') calcSoftWindow();
+    });
+  }
+}
+
+// временный полигон поверх SVG
+window.renderTempPolygonOverlay = function () {
+  const svg = document.getElementById('preview');
+  if (!svg) return;
+  const old = svg.querySelector('#temp-polygon-layer');
+  if (old) old.remove();
+
+  if (!window.__placementMode || !window.__placementPoints.length) return;
+  const meta = window.__lastDrawMeta;
+  if (!meta || !meta.scale) return;
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('id', 'temp-polygon-layer');
+
+  const pts = window.__placementPoints
+    .map((p) => `${(p.xCm || 0) * meta.scale + (meta.padding || 0)},${(p.yCm || 0) * meta.scale + (meta.padding || 0)}`)
+    .join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly.setAttribute('points', pts);
+  poly.setAttribute('fill', window.__placementMode === 'cutout' ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.4)');
+  poly.setAttribute('stroke', window.__placementMode === 'cutout' ? '#0f172a' : '#94a3b8');
+  poly.setAttribute('stroke-dasharray', window.__placementMode === 'cutout' ? '' : '4 2');
+  poly.setAttribute('stroke-width', '1.3');
+  g.appendChild(poly);
+
+  svg.appendChild(g);
+};
+
+function openCutoutsModal() {
+  const m = document.getElementById('tab-cutouts');
+  if (m) m.classList.add('active');
+}
+
+function closeCutoutsModal() {
+  const m = document.getElementById('tab-cutouts');
+  if (m) m.classList.remove('active');
+  window.__placementMode = null;
+  window.__placementPoints = [];
+  if (typeof window.renderTempPolygonOverlay === 'function') {
+    window.renderTempPolygonOverlay();
+  }
+}
+
+function initCutoutsTab() {
+  const modal = document.getElementById('tab-cutouts');
+  if (!modal) return;
+
+  const closeBtn = document.getElementById('cutoutsClose');
+  if (closeBtn) closeBtn.addEventListener('click', closeCutoutsModal);
+}
+
+function openSkirtModal() {
+  const m = document.getElementById('tab-skirt');
+  if (m) m.classList.add('active');
+}
+
+function closeSkirtModal() {
+  const m = document.getElementById('tab-skirt');
+  if (m) m.classList.remove('active');
+}
+
+function initSkirtModal() {
+  const closeBtn = document.getElementById('skirtClose');
+  if (closeBtn) closeBtn.addEventListener('click', closeSkirtModal);
 }
 
 function initForms() {
@@ -445,14 +551,16 @@ function initForms() {
   initEdgingPills();
   initHardware();
   initMount();
+  initSkirtPills();
   initSidebar();
   initResultTabs();
-  initCostsPanel();
   initZippersTab();
   initPocketTab();
+  initCutoutsTab();
+  initSkirtModal();
+  initSkirtPills();
   initHardwareFasteners();
   initHardwareAdvancedToggle();
   initSizePills();
 }
 
-document.addEventListener('DOMContentLoaded', initForms);
