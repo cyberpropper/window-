@@ -1,6 +1,9 @@
 function openZippersModal() {
   const m = document.getElementById('tab-zippers');
   if (m) m.classList.add('active');
+  if (typeof window.__syncZippersUI === 'function') {
+    window.__syncZippersUI();
+  }
 }
 
 function closeZippersModal() {
@@ -17,9 +20,41 @@ function initZippersTab() {
   const colorOptions = document.querySelectorAll('.zip-color-option');
   const applyBtn = document.getElementById('applyZippers');
   const clearBtn = document.getElementById('clearZippers');
+  const toggleZipper = document.getElementById('toggle-zipper');
 
   let selectedCount = windowState.zippersCount || 0;
-  let selectedColor = windowState.zippersColor || 'black';
+  let selectedColor = windowState.zippersColor || windowState.edgingColor || 'black';
+
+  function syncToggle(on) {
+    if (!toggleZipper) return;
+    toggleZipper.classList.toggle('toggle--on', on);
+  }
+
+  function syncSelectedUI() {
+    countOptions.forEach((x) => {
+      x.classList.toggle('active', +x.dataset.count === selectedCount);
+    });
+    colorOptions.forEach((x) => {
+      x.classList.toggle('active', x.dataset.color === selectedColor);
+    });
+  }
+
+  function syncFromState() {
+    selectedCount = windowState.zippersCount || 0;
+    selectedColor = windowState.zippersColor || windowState.edgingColor || 'black';
+
+    // если молния включена, но количество не выбрано - ставим 1 по умолчанию
+    if (windowState.hasZipper && (!selectedCount || selectedCount < 0)) {
+      selectedCount = 1;
+    }
+
+    const isOn = !!windowState.hasZipper && selectedCount > 0;
+    syncToggle(isOn);
+    syncSelectedUI();
+  }
+
+  syncFromState();
+  window.__syncZippersUI = syncFromState;
 
   if (closeBtn) {
     closeBtn.addEventListener('click', closeZippersModal);
@@ -43,9 +78,17 @@ function initZippersTab() {
 
   if (applyBtn) {
     applyBtn.addEventListener('click', () => {
+      if (!selectedCount || selectedCount < 0) {
+        selectedCount = 1; // если ничего не выбрали, ставим 1 по умолчанию
+      }
+
       windowState.zippersCount = selectedCount;
       windowState.zippersColor = selectedColor;
+      windowState.hasZipper = selectedCount > 0;
+      
+      syncToggle(windowState.hasZipper);
       if (typeof calcSoftWindow === 'function') calcSoftWindow();
+      syncSelectedUI();
       closeZippersModal();
     });
   }
@@ -53,10 +96,13 @@ function initZippersTab() {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       windowState.zippersCount = 0;
-      windowState.zippersColor = 'black';
+      windowState.zippersColor = windowState.edgingColor || 'black';
+      windowState.hasZipper = false;
+      selectedCount = 0;
+      selectedColor = windowState.zippersColor;
 
-      countOptions.forEach((x) => x.classList.remove('active'));
-      colorOptions.forEach((x) => x.classList.remove('active'));
+      syncToggle(false);
+      syncSelectedUI();
 
       if (typeof calcSoftWindow === 'function') calcSoftWindow();
       closeZippersModal();

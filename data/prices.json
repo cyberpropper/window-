@@ -1,0 +1,87 @@
+{
+  "materials": [
+    {
+      "id": "pvc08",
+      "label": "PVC 0.8 mm",
+      "pricePerM2": 1400
+    },
+    {
+      "id": "pvc10",
+      "label": "PVC 1.0 mm",
+      "pricePerM2": 1600
+    },
+    {
+      "id": "softglass",
+      "label": "Softglass",
+      "pricePerM2": 1900
+    }
+  ],
+  "edging": {
+    "pricePerM": 80,
+    "options": [
+      80,
+      100,
+      120
+    ],
+    "colors": [
+      {
+        "id": "black",
+        "label": "Black",
+        "fill": "#2a2f38",
+        "stroke": "#1f2937"
+      },
+      {
+        "id": "white",
+        "label": "White",
+        "fill": "#e5e7eb",
+        "stroke": "#cbd5e1"
+      },
+      {
+        "id": "brown",
+        "label": "Brown",
+        "fill": "#6b4b32",
+        "stroke": "#4b3626"
+      }
+    ]
+  },
+  "laborPricePerM2": 300,
+  "grommetStepOptions": [
+    20,
+    30,
+    40
+  ],
+  "hardware": [
+    {
+      "id": "grommet10",
+      "label": "Grommet 10 mm",
+      "pricePerPiece": 44
+    },
+    {
+      "id": "bracket",
+      "label": "Bracket with hook",
+      "pricePerPiece": 112
+    },
+    {
+      "id": "metal-rotary",
+      "label": "Metal rotary latch",
+      "pricePerPiece": 143
+    },
+    {
+      "id": "plastic-rotary",
+      "label": "Plastic rotary latch",
+      "pricePerPiece": 95
+    }
+  ],
+  "extras": {
+    "patchPrice": 80,
+    "cutoutPrice": 120,
+    "zipperPrice": 350,
+    "skirtPricePerM": 250
+  },
+  "defaults": {
+    "widthCm": 200,
+    "heightCm": 200,
+    "edgingPricePerM": 80,
+    "grommetStep": 30
+  }
+}

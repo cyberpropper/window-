@@ -1,57 +1,29 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Калькулятор мягких окон</title>
+  <title>Soft window calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<!-- ЛОГИН -->
-<div id="login-screen">
-  <div id="login-box">
-    <h1>Вход в калькулятор</h1>
-    <p>Введите логин и пароль, чтобы открыть расчёт мягких окон.</p>
-    <div id="login-error"></div>
-    <input id="login-user" type="text" placeholder="Логин">
-    <input id="login-pass" type="password" placeholder="Пароль">
-    <button onclick="checkLogin()">Войти</button>
-  </div>
-</div>
-
-<!-- ОСНОВНОЙ ИНТЕРФЕЙС-->
 <div id="app">
   <div class="soft-shell">
-    <!-- МОЛНИЯ -->
+    <!-- Молния -->
     <div class="tab-content" id="tab-zippers">
       <div class="zippers-inner">
         <button id="zippersClose">×</button>
-
         <h3 class="tab-title">Выберите количество молний</h3>
-
         <div class="zippers-count">
-          <div class="zip-option" data-count="0">
-            <img src="img/zippers/zip0.svg">
-          </div>
-          <div class="zip-option" data-count="1">
-            <img src="img/zippers/zip1.svg">
-          </div>
-          <div class="zip-option" data-count="2">
-            <img src="img/zippers/zip2.svg">
-          </div>
+          <div class="zip-option" data-count="0"><img src="img/zippers/zip0.svg"></div>
+          <div class="zip-option" data-count="1"><img src="img/zippers/zip1.svg"></div>
+          <div class="zip-option" data-count="2"><img src="img/zippers/zip2.svg"></div>
         </div>
-
         <h3 class="tab-title">Выберите цвет молний</h3>
-
         <div class="zip-colors">
           <div class="zip-color-option" data-color="black">чёрный</div>
           <div class="zip-color-option" data-color="white">белый</div>
         </div>
-
         <div class="tab-actions">
           <button class="btn-apply" id="applyZippers">ПРИМЕНИТЬ</button>
           <button class="btn-clear" id="clearZippers">ОЧИСТИТЬ</button>
@@ -59,23 +31,17 @@
       </div>
     </div>
 
-    <!-- КАРМАН ПОД УТЯЖЕЛИТЕЛЬ -->
+    <!-- Карман -->
     <div class="tab-content" id="tab-pocket">
       <div class="pocket-inner">
         <button id="pocketClose">×</button>
-
         <h3 class="tab-title">Карман под утяжелитель</h3>
-
-        <p style="font-size:12px;color:#64748b;margin:4px 0 10px;">
-          Выберите размер кармана (см по высоте).
-        </p>
-
+        <p style="font-size:12px;color:#64748b;margin:4px 0 10px;">Выберите размер кармана (см по высоте).</p>
         <div class="zip-colors">
           <div class="zip-color-option pocket-option" data-size="3">3 см</div>
           <div class="zip-color-option pocket-option" data-size="4">4 см</div>
           <div class="zip-color-option pocket-option" data-size="5">5 см</div>
         </div>
-
         <div class="tab-actions" style="margin-top:16px;">
           <button class="btn-apply" id="applyPocket">ПРИМЕНИТЬ</button>
           <button class="btn-clear" id="clearPocket">ОЧИСТИТЬ</button>
@@ -83,60 +49,74 @@
       </div>
     </div>
 
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-    <div class="soft-topbar">
-      <!-- Фон под модалкой стоимости -->
-      <div id="costs-backdrop" class="costs-backdrop"></div>
+    <!-- Вырезы/заплатки -->
+    <div class="tab-content" id="tab-cutouts">
+      <div class="pocket-inner">
+        <button id="cutoutsClose">×</button>
+        <h3 class="tab-title">Вырезы и заплатки</h3>
+        <p style="font-size:12px;color:#64748b;margin:4px 0 10px;">Кликните по схеме, чтобы поставить точки. Завершайте кнопкой "Финиш".</p>
+        <div class="costs-panel__actions" style="padding:0;margin-bottom:6px;">
+          <button class="btn-secondary-small" id="place-cutout-btn" type="button">Вырез</button>
+          <button class="btn-secondary-small" id="place-patch-btn" type="button">Заплатка</button>
+          <button class="btn-secondary-small" id="place-cancel-btn" type="button">Отмена</button>
+        </div>
+        <div class="costs-panel__actions" style="padding:0;margin-bottom:10px;">
+          <button class="btn-secondary-small" id="place-undo-btn" type="button">Шаг назад</button>
+          <button class="btn-primary-small" id="place-finish-btn" type="button">Финиш</button>
+        </div>
+        <div style="font-size:11px;color:#64748b;margin-top:4px;" id="placement-hint"></div>
+        <div class="settings-field" style="margin-top:6px;">
+          <label>Позиции заплаток (x,y; ...)</label>
+          <input id="patchPositionsInput" type="text" placeholder="например: 30,40; 120,60" style="font-size:11px;padding:4px 6px;">
+        </div>
+        <div class="settings-field" style="margin-top:4px;">
+          <label>Позиции вырезов (x,y; ...)</label>
+          <input id="cutoutPositionsInput" type="text" placeholder="например: 0,50; 0,110" style="font-size:11px;padding:4px 6px;">
+        </div>
+      </div>
+    </div>
 
-      <!-- Модальное окно "Стоимость" -->
+    <!-- Юбка -->
+    <div class="tab-content" id="tab-skirt">
+      <div class="pocket-inner">
+        <button id="skirtClose">×</button>
+        <h3 class="tab-title">Юбка снизу</h3>
+        <p style="font-size:12px;color:#64748b;margin:4px 0 10px;">Прямоугольник снизу полотна. Выберите высоту.</p>
+        <div id="skirt-pills" class="radio-row">
+          <div class="pill pill--active" data-skirt="0">Без юбки</div>
+          <div class="pill" data-skirt="10">10 см</div>
+          <div class="pill" data-skirt="15">15 см</div>
+          <div class="pill" data-skirt="20">20 см</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Верхняя панель -->
+    <div class="soft-topbar">
+      <div id="costs-backdrop" class="costs-backdrop"></div>
       <div id="costs-panel" class="costs-panel">
         <div class="costs-panel__header">
-          <div class="costs-panel__title">Настройки стоимости</div>
-          <button class="costs-panel__close" id="costs-close">×</button>
+          <div class="costs-panel__title">Price DB editor (JSON)</div>
+          <button class="costs-panel__close" id="costs-close">X</button>
         </div>
-
-        <div class="costs-panel__grid">
-          <!-- Материалы -->
-          <div>
-            <h3>Материалы, ₽/м²</h3>
-            <div class="costs-field">
-              <label>ПВХ 0.8 мм</label>
-              <input id="price-pvc08" type="number" value="1400">
-            </div>
-            <div class="costs-field">
-              <label>ПВХ 1.0 мм</label>
-              <input id="price-pvc10" type="number" value="1600">
-            </div>
-            <div class="costs-field">
-              <label>премиум</label>
-              <input id="price-softglass" type="number" value="1900">
-            </div>
+        <div class="costs-panel__editor">
+          <p class="costs-panel__note">All prices live in <code>data/prices.json</code>. Edit JSON and save.</p>
+          <textarea id="price-json-editor" spellcheck="false"></textarea>
+          <div class="costs-panel__actions">
+            <input id="price-json-password" type="password" placeholder="Editor password">
+            <button class="btn-primary-small" id="price-json-save">Save JSON</button>
+            <button class="btn-secondary-small" id="price-json-reload" type="button">Reload from file</button>
           </div>
-
-          <!-- Окантовка -->
-          <div>
-            <h3>Окантовка</h3>
-            <div class="costs-field">
-              <label>Цена за 1 м</label>
-              <input id="edgingPriceControl" type="number" value="80">
-              <small>Меняется для всех окон сразу</small>
-            </div>
+          <div class="costs-panel__actions">
+            <input id="price-json-new-password" type="password" placeholder="New password">
+            <button class="btn-secondary-small" id="price-json-save-password" type="button">Change password</button>
           </div>
-
-          <!-- Работа -->
-          <div>
-            <h3>Работа</h3>
-            <div class="costs-field">
-              <label>Работа за 1 м²</label>
-              <input id="laborPricePerM2" type="number" value="300">
-              <small>Пайка, раскрой, пробивка и т.п.</small>
-            </div>
-          </div>
+          <div id="price-json-status" class="costs-panel__status"></div>
         </div>
       </div>
       <div class="soft-topbar__left">
         <div class="soft-topbar__menu">
-          <button class="soft-topbar__menu-btn" id="costs-toggle">Стоимость</button>
+          <button class="soft-topbar__menu-btn" id="costs-toggle">Price editor</button>
           <button class="soft-topbar__menu-btn">Добавить пользователя</button>
           <button class="soft-topbar__menu-btn soft-topbar__menu-btn--primary">Создать заказ</button>
         </div>
@@ -153,437 +133,155 @@
       </div>
     </div>
 
-    <!-- ПАНЕЛЬ ЗАКАЗА -->
+    <!-- Панель заказа -->
     <div class="order-panel">
       <div class="order-panel__header">
         <div class="order-panel__title">Заказ окон</div>
-        <button class="btn-primary-small" onclick="copyOrderToClipboard()">
-          Скопировать заказ
-        </button>
+        <button class="btn-secondary-small" onclick="addCurrentWindowToOrder()" type="button">Добавить окно в заказ</button>
+        <button class="btn-primary-small" onclick="copyOrderToClipboard()">Скопировать заказ</button>
       </div>
-
       <div id="order-list" class="order-list"></div>
-
       <div class="order-panel__footer">
         <div>Итого по заказу:</div>
         <div id="order-total" class="order-panel__total">0 ₽</div>
       </div>
     </div>
 
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="soft-main">
-
-      <!-- ЛЕВАЯ ПАНЕЛЬ ДОП. НАСТРОЕК -->
       <aside class="soft-sidebar">
         <div class="soft-sidebar__title">Дополнительные<br>настройки окна</div>
         <div class="soft-sidebar__items">
           <div class="soft-sidebar__item soft-sidebar__item--active" data-sidebar="zipper">
-            <div class="soft-sidebar__item-icon"></div>
-            <span>Молния</span>
+            <div class="soft-sidebar__item-icon"></div><span>Молния</span>
           </div>
           <div class="soft-sidebar__item" data-sidebar="skirt">
-            <div class="soft-sidebar__item-icon"></div>
-            <span>Юбка</span>
+            <div class="soft-sidebar__item-icon"></div><span>Юбка</span>
           </div>
           <div class="soft-sidebar__item" data-sidebar="pocket">
-            <div class="soft-sidebar__item-icon"></div>
-            <span>Карман</span>
+            <div class="soft-sidebar__item-icon"></div><span>Карман</span>
           </div>
           <div class="soft-sidebar__item" data-sidebar="cutouts">
-            <div class="soft-sidebar__item-icon"></div>
-            <span>Вырез</span>
+            <div class="soft-sidebar__item-icon"></div><span>Вырез</span>
           </div>
           <div class="soft-sidebar__item" data-sidebar="door">
-            <div class="soft-sidebar__item-icon"></div>
-            <span>Дверь</span>
+            <div class="soft-sidebar__item-icon"></div><span>Дверь</span>
           </div>
         </div>
       </aside>
 
-      <!-- ПРАВАЯ РАБОЧАЯ ЗОНА -->
       <div class="soft-work">
-
-        <!-- ЦЕНТР: ОКНО + БАЗОВЫЕ НАСТРОЙКИ -->
         <section class="soft-center">
           <div class="soft-center__header">
             <div class="soft-center__title">ОКНО №1</div>
             <div class="soft-center__counter">01 / 01</div>
           </div>
-
           <div class="soft-drawing-wrapper">
-            <div class="soft-drawing-top-scale">
-
-            </div>
+            <div class="soft-drawing-top-scale"></div>
             <div class="soft-drawing-main">
-              <svg id="preview" viewBox="0 0 520 440" style="width:100%;height:auto;">
-              <!-- Рисуется скриптом -->
-            </svg>
-
-            <!-- Служебные поля для расчёта (можно скрыть, верстку не ломают) -->
-            <div style="display:none">
-              <!-- Форма окна -->
-              <select id="shape">
-                <option value="rect" selected>Прямоугольник</option>
-                <option value="trapezoid">Трапеция</option>
-                <option value="arch">Арка</option>
-                <option value="angledRight">Со срезом справа</option>
-              </select>
-
-              <!-- Размеры, см -->
-              <input id="width"  type="number" value="200">
-              <input id="height" type="number" value="200">
-
-              <!-- Материал -->
-              <select id="material">
-                <option value="pvc08" data-price="1400" selected>ПВХ 0.8 мм</option>
-                <option value="pvc10" data-price="1600">ПВХ 1.0 мм</option>
-                <option value="softglass" data-price="1900">Softglass премиум</option>
-              </select>
-
-              <!-- Окантовка и шаг креплений -->
-              <input id="edgingPricePerM" type="number" value="80">
-              <input id="grommetStep"     type="number" value="30">
-
-              <!-- Юбка (см) -->
-              <input id="skirtHeightInput" type="number" value="0">
+              <svg id="preview" viewBox="0 0 520 440" style="width:100%;height:auto;"></svg>
+              <div style="display:none">
+                <select id="shape">
+                  <option value="rect" selected>Прямоугольник</option>
+                  <option value="trapezoid">Трапеция</option>
+                  <option value="angledRight">Со срезом справа</option>
+                  <option value="angledLeft">Со срезом слева</option>
+                  <option value="triangle">Треугольник</option>
+                </select>
+                <input id="width" type="number" value="200">
+                <input id="height" type="number" value="200">
+                <select id="material">
+                  <option value="pvc08" data-price="1400" selected>ПВХ 0.8 мм</option>
+                  <option value="pvc10" data-price="1600">ПВХ 1.0 мм</option>
+                  <option value="softglass" data-price="1900">Softglass</option>
+                </select>
+                <input id="edgingPricePerM" type="number" value="80">
+                <input id="grommetStep" type="number" value="30">
+                <input id="skirtHeightInput" type="number" value="0">
+                <input id="topDelta" type="number" value="0">
+                <input id="flatTopHeight" type="number" value="100">
+              </div>
             </div>
-
-
-            </div>
-            <div class="soft-drawing-bottom-scale">
-              
-            </div>
+            <div class="soft-drawing-bottom-scale"></div>
           </div>
         </section>
 
-        <!-- ПРАВЫЙ МАСТЕР ВКЛАДОК -->
         <aside class="soft-right">
           <div class="soft-tabs">
-            <div class="soft-tab soft-tab--active" data-tab="shape">
-              <span class="icon"></span>Форма
-            </div>
-            <div class="soft-tab" data-tab="material">
-              <span class="icon"></span>Материал
-            </div>
-            <div class="soft-tab" data-tab="edging">
-              <span class="icon"></span>Окантовка
-            </div>
-            <div class="soft-tab" data-tab="hardware">
-              <span class="icon"></span>Фурнитура
-            </div>
-            <div class="soft-tab" data-tab="mount">
-              <span class="icon"></span>Вариант установки
-            </div>
+            <div class="soft-tab soft-tab--active" data-tab="shape"><span class="icon"></span>Форма</div>
+            <div class="soft-tab" data-tab="material"><span class="icon"></span>Материал</div>
+            <div class="soft-tab" data-tab="edging"><span class="icon"></span>Окантовка</div>
+            <div class="soft-tab" data-tab="hardware"><span class="icon"></span>Фурнитура</div>
+            <div class="soft-tab" data-tab="mount"><span class="icon"></span>Вариант установки</div>
           </div>
 
           <div class="soft-tab-panels">
-            <!-- ФОРМА -->
             <div class="soft-tab-panel soft-tab-panel--active" data-panel="shape">
-              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
-                Выберите форму проёма, при смене форма сразу отрисуется.
-              </div>
-
+              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">Выберите форму проёма, при смене форма сразу отрисуется.</div>
               <div class="shape-grid">
-                <div class="shape-card shape-card--active" data-shape="rect">
-                  <svg viewBox="0 0 60 40">
-                    <rect x="5" y="5" width="50" height="30" rx="2" ry="2"
-                          fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/>
-                  </svg>
-                </div>
-
-                <div class="shape-card" data-shape="trapezoid">
-                  <svg viewBox="0 0 60 40">
-                    <path d="M5 35 L55 35 L48 5 L12 5 Z"
-                          fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/>
-                  </svg>
-                </div>
-
-                <div class="shape-card" data-shape="arch">
-                  <svg viewBox="0 0 60 40">
-                    <rect x="5" y="20" width="50" height="15"
-                          fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/>
-                    <path d="M5 20 A25 25 0 0 1 55 20"
-                          fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/>
-                  </svg>
-                </div>
-
-                <div class="shape-card" data-shape="angledRight">
-                  <svg viewBox="0 0 60 40">
-                    <path d="M5 35 L5 5 L55 5 L45 35 Z"
-                          fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/>
-                  </svg>
-                </div>
+                <div class="shape-card shape-card--active" data-shape="rect"><svg viewBox="0 0 60 40"><rect x="5" y="5" width="50" height="30" rx="2" ry="2" fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/></svg></div>
+                <div class="shape-card" data-shape="trapezoid"><svg viewBox="0 0 60 40"><path d="M5 35 L55 35 L48 5 L12 5 Z" fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/></svg></div>
+                <div class="shape-card" data-shape="angledRight"><svg viewBox="0 0 60 40"><path d="M5 35 L5 5 L55 5 L45 35 Z" fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/></svg></div>
+                <div class="shape-card" data-shape="angledLeft"><svg viewBox="0 0 60 40"><path d="M55 35 L55 5 L5 5 L15 35 Z" fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/></svg></div>
+                <div class="shape-card" data-shape="triangle"><svg viewBox="0 0 60 40"><path d="M5 35 L30 5 L55 35 Z" fill="#e5f3ff" stroke="#1f2937" stroke-width="3"/></svg></div>
               </div>
-
-              <!-- доп. поля форм -->
               <div id="trapezoidControls" class="settings-card" style="margin-top:10px; display:none;">
-                <h2>Трапеция</h2>
-                <small>Насколько верх уже низа (см).</small>
-                <div class="settings-field">
-                  <label for="topDelta">Сужение верха, см</label>
-                  <input id="topDelta" type="number" value="0">
-                </div>
+                <h2>Трапеция</h2><small>Насколько верх уже низа (см).</small>
+                <div class="settings-field"><label for="topDelta">Сужение верха, см</label><input id="topDelta" type="number" value="0"></div>
               </div>
-
-              <div id="archControls" class="settings-card" style="margin-top:10px; display:none;">
-                <h2>Арка</h2>
-                <small>Высота дуги (сколько забирает от общей высоты).</small>
-                <div class="settings-field">
-                  <label for="archHeight">Высота арки, см</label>
-                  <input id="archHeight" type="number" value="40">
-                </div>
-              </div>
-
               <div id="angledRightControls" class="settings-card" style="margin-top:10px; display:none;">
-                <h2>Срез справа</h2>
-                <small>Высота прямой части сверху, остальное — срез.</small>
-                <div class="settings-field">
-                  <label for="flatTopHeight">Высота прямого участка, см</label>
-                  <input id="flatTopHeight" type="number" value="100">
-                </div>
+                <h2>Угловая форма</h2><small>Высота прямой части сверху, применимо для среза слева или справа.</small>
+                <div class="settings-field"><label for="flatTopHeight">Высота прямого участка, см</label><input id="flatTopHeight" type="number" value="100"></div>
               </div>
             </div>
 
-            <!-- МАТЕРИАЛ -->
             <div class="soft-tab-panel" data-panel="material">
-              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
-                Выберите материал плёнки. Цена за м² подтянется из настроек стоимости.
-              </div>
-
-              <div id="material-pills" class="radio-row">
-                <div class="pill pill--active" data-material="pvc08">ПВХ 0.8 мм</div>
-                <div class="pill" data-material="pvc10">ПВХ 1.0 мм</div>
-                <div class="pill" data-material="softglass">Softglass премиум</div>
-              </div>
-
-              <div style="margin-top:10px;font-size:12px;">
-                Текущая цена материала:
-                <span id="material-price-label" style="font-weight:600;">1400 ₽/м²</span>
-              </div>
-
-              <small style="display:block;margin-top:4px;">
-                Цены меняются в панели «Стоимость».
-              </small>
+              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">Выберите материал плёнки. Цена за м² подтянется из настроек стоимости.</div>
+              <div id="material-pills" class="radio-row"></div>
+              <div style="margin-top:10px;font-size:12px;">Текущая цена материала: <span id="material-price-label" style="font-weight:600;">—</span></div>
+              <small style="display:block;margin-top:4px;">Цены меняются в панели стоимости.</small>
             </div>
 
-            <!-- ОКАНТОВКА -->
             <div class="soft-tab-panel" data-panel="edging">
-              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
-                Настройте стоимость и цвет окантовки по периметру.
-              </div>
-
-              <div class="settings-card" style="margin-bottom:10px;">
-                <h2>Цена окантовки</h2>
-                <small>Выберите готовый вариант или задайте в «Стоимость».</small>
-
-                <div id="edging-price-pills" class="radio-row">
-                  <div class="pill pill--active" data-price="80">80 ₽/м</div>
-                  <div class="pill" data-price="100">100 ₽/м</div>
-                  <div class="pill" data-price="120">120 ₽/м</div>
-                </div>
-              </div>
-
+              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">Настройте стоимость и цвет окантовки по периметру.</div>
               <div class="settings-card">
                 <h2>Цвет окантовки</h2>
                 <small>Влияет только на визуализацию.</small>
-
-                <div id="edging-color-row" class="radio-row">
-                  <div class="pill pill--active">Чёрная</div>
-                  <div class="pill">Белая</div>
-                  <div class="pill">Коричневая</div>
-                </div>
+                <div id="edging-color-row" class="radio-row"></div>
               </div>
             </div>
 
-            <!-- ВАРИАНТ УСТАНОВКИ -->
-            <div class="soft-tab-panel" data-panel="mount">
-              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
-                Выберите шаг креплений и, при необходимости, отметьте, где будет монтаж.
+            <div class="soft-tab-panel" data-panel="hardware">
+              <div class="settings-card">
+                <h2>Выбор фурнитуры:</h2>
+                <div class="hardware-list"><div style="padding:8px 10px;color:var(--text-soft);">Загрузка фурнитуры...</div></div>
+                <div class="hardware-footer">
+                  <div class="hardware-footer__label">Доп. настройки:</div>
+                  <div class="hardware-footer__value" id="hardware-selected-label">-</div>
+                </div>
+                <button class="hardware-advanced-toggle" id="hardware-advanced-toggle" type="button">Дополнительное меню настроек</button>
+                <div class="hardware-advanced" id="hardware-advanced"><small style="color:var(--text-soft);">.</small></div>
               </div>
+            </div>
 
+            <div class="soft-tab-panel" data-panel="mount">
+              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">Выберите шаг креплений и, при необходимости, отметьте, где будет монтаж.</div>
               <div class="settings-card">
                 <h2>Шаг креплений</h2>
                 <small>Чем меньше шаг, тем больше крепежа и выше цена.</small>
-
                 <div id="mount-step-pills" class="radio-row">
                   <div class="pill" data-step="20">20 см</div>
                   <div class="pill pill--active" data-step="30">30 см</div>
                   <div class="pill" data-step="40">40 см</div>
                 </div>
               </div>
-
               <div class="settings-card" style="margin-top:10px;">
                 <h2>Где крепим</h2>
                 <small>Пока влияет только на описание.</small>
-
-                <div class="toggle-row">
-                  <div>Крепление сверху</div>
-                  <div class="toggle" id="toggle-mount-top">
-                    <div class="toggle__thumb"></div>
-                  </div>
-                </div>
-
-                <div class="toggle-row">
-                  <div>Крепление по бокам</div>
-                  <div class="toggle" id="toggle-mount-sides">
-                    <div class="toggle__thumb"></div>
-                  </div>
-                </div>
               </div>
             </div>
 
-            <!-- ФУРНИТУРА (ТВОЙ СТАРЫЙ БЛОК, БЕЗ ИЗМЕНЕНИЙ) -->
-            <div class="soft-tab-panel" data-panel="hardware">
-              <div style="font-size:12px;color:var(--text-soft);margin-bottom:6px;">
-                Выберите крепление для окна.
-              </div>
-
-              <!-- СПИСОК КРЕПЛЕНИЙ -->
-              <div class="hardware-list">
-                <div class="hardware-item hardware-item--active"
-                    data-type="grommet10"
-                    data-price="44">
-                  <div class="hardware-item__radio"></div>
-                  <div class="hardware-item__body">
-                    <div class="hardware-item__top">
-                      <div class="hardware-item__title">Люверс 10 мм</div>
-                      <div class="hardware-item__price">44 ₽</div>
-                    </div>
-                    <div class="hardware-item__desc">
-                      Универсальный вариант для утяжеления и крепления плёнки.
-                      Подходит для большинства объектов, ставится по периметру.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="hardware-item"
-                    data-type="bracket"
-                    data-price="112">
-                  <div class="hardware-item__radio"></div>
-                  <div class="hardware-item__body">
-                    <div class="hardware-item__top">
-                      <div class="hardware-item__title">Скоба с рым-кольцом</div>
-                      <div class="hardware-item__price">112 ₽</div>
-                    </div>
-                    <div class="hardware-item__desc">
-                      Усиленное крепление для ветреных зон и больших проёмов.
-                      Даёт более жёсткую фиксацию.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="hardware-item"
-                    data-type="metal-rotary"
-                    data-price="143">
-                  <div class="hardware-item__radio"></div>
-                  <div class="hardware-item__body">
-                    <div class="hardware-item__top">
-                      <div class="hardware-item__title">Поворотная металлическая</div>
-                      <div class="hardware-item__price">143 ₽</div>
-                    </div>
-                    <div class="hardware-item__desc">
-                      Удобна там, где окно часто открывают и закрывают.
-                      Фиксация поворотным флажком.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="hardware-item"
-                    data-type="plastic-rotary"
-                    data-price="95">
-                  <div class="hardware-item__radio"></div>
-                  <div class="hardware-item__body">
-                    <div class="hardware-item__top">
-                      <div class="hardware-item__title">Поворотная пластиковая</div>
-                      <div class="hardware-item__price">95 ₽</div>
-                    </div>
-                    <div class="hardware-item__desc">
-                      Лёгкий и бюджетный вариант поворотного крепления
-                      для веранд и дачных террас.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="hardware-footer">
-                <div class="hardware-footer__left">
-                  <div class="hardware-footer__label">Тип крепления</div>
-                  <div class="hardware-footer__value" id="hardware-selected-label">
-                    Люверс 10 мм · 44 ₽/шт
-                  </div>
-                </div>
-              </div>
-
-              <div id="hardware-advanced-toggle" class="hardware-advanced-toggle">
-                Дополнительные настройки (молния, заплатки, вырезы)
-              </div>
-
-              <div class="hardware-advanced" id="hardware-advanced">
-                <div style="font-size:12px;color:var(--text-soft);margin-top:6px;">
-                  Дополнительные элементы, влияющие на удобство и стоимость.
-                </div>
-
-                <div class="toggle-row">
-                  <div>Вертикальная молния</div>
-                  <div class="toggle" id="toggle-zipper">
-                    <div class="toggle__thumb"></div>
-                  </div>
-                </div>
-
-                <!-- Карман под утяжелитель -->
-                <div style="margin-top:10px;font-size:12px;">
-                  <div style="font-weight:600;margin-bottom:4px;">
-                    Добавить карман под утяжелитель
-                  </div>
-                  <div class="slider-pills" id="pocket-size-pills">
-                    <div class="pill pill--active" data-pocket="0">Нет</div>
-                    <div class="pill" data-pocket="3">3</div>
-                    <div class="pill" data-pocket="4">4</div>
-                    <div class="pill" data-pocket="5">5</div>
-                  </div>
-                </div>
-
-                <div class="toggle-row">
-                  <div>Заплатки усиления</div>
-                  <div class="slider-pills" id="patch-count-pills">
-                    <div class="pill pill--active" data-patches="0">Нет</div>
-                    <div class="pill" data-patches="2">2</div>
-                    <div class="pill" data-patches="4">4</div>
-                  </div>
-                </div>
-
-                <div class="toggle-row">
-                  <div>Вырезы по бокам</div>
-                  <div class="slider-pills" id="cutout-count-pills">
-                    <div class="pill pill--active" data-cutouts="0">Нет</div>
-                    <div class="pill" data-cutouts="2">2</div>
-                    <div class="pill" data-cutouts="3">3</div>
-                  </div>
-                </div>
-
-                <div style="margin-top:10px;font-size:11px;color:var(--text-soft);">
-                  Координаты (см) от левого края и верха окна:
-                </div>
-
-                <div class="settings-field" style="margin-top:6px;">
-                  <label>Позиции заплаток (x,y; ...)</label>
-                  <input id="patchPositionsInput" type="text"
-                        placeholder="например: 30,40; 120,60"
-                        style="font-size:11px;padding:4px 6px;">
-                </div>
-
-                <div class="settings-field" style="margin-top:4px;">
-                  <label>Позиции вырезов (x,y; ...)</label>
-                  <input id="cutoutPositionsInput" type="text"
-                        placeholder="например: 0,50; 0,110"
-                        style="font-size:11px;padding:4px 6px;">
-                </div>
-              </div>
-            </div>
           </div>
 
-          <!-- Сводка справа снизу -->
           <div class="summary-footer">
             <div class="summary-footer__price">
               <div style="font-size:11px;color:var(--text-soft);">Площадь окна</div>
@@ -591,37 +289,26 @@
               <div class="summary-footer__price-main" id="summary-total">0 ₽</div>
             </div>
             <div class="summary-footer__btns">
-              <button class="btn-round" title="Сбросить окно" onclick="resetSoftWindow()">⟲</button>
-              <button class="btn-add" onclick="addCurrentWindowToOrder()">
-                <span class="icon"></span>
-                <span>Добавить окно</span>
-              </button>
+              <button class="btn-round" title="Сбросить окно" onclick="resetSoftWindow()">↺</button>
+              <button class="btn-add" onclick="addCurrentWindowToOrder()"><span class="icon"></span><span>Добавить окно</span></button>
             </div>
           </div>
         </aside>
       </div>
 
-      <!-- Нижняя полоса -->
       <div class="soft-bottom">
-        <div class="soft-bottom__left">
-          <span class="soft-bottom__badge" id="bottom-area-badge">0.00 м²</span>
-          <span>Индивидуальное редактирование комплектации</span>
-        </div>
+        <div class="soft-bottom__left"><span class="soft-bottom__badge" id="bottom-area-badge">0.00 м²</span><span>Индивидуальное редактирование комплектации</span></div>
         <div>Калькулятор мягких окон · демо-версия</div>
       </div>
-
     </div>
   </div>
 </div>
 
-
-
-
-  <script src="scripts/main.js"></script>
-  <script src="scripts/grommets.js"></script>
-  <script src="scripts/draw.js"></script>
-  <script src="scripts/pricing.js"></script>
-  <script src="scripts/zipper.js"></script>
-  <script src="scripts/forms.js"></script>
+<script src="scripts/main.js"></script>
+<script src="scripts/grommets.js"></script>
+<script src="scripts/draw.js"></script>
+<script src="scripts/pricing.js"></script>
+<script src="scripts/zipper.js"></script>
+<script src="scripts/forms.js"></script>
 </body>
 </html>
