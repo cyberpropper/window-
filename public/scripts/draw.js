@@ -36,6 +36,8 @@
   const skirtPx = (opts.skirtHeight || 0) * scale;
   const grommetStepCm = opts.grommetStep || 30;
   const grommetStepPx = grommetStepCm * scale;
+  const hardwareSides = opts.hardwareSides || {};
+  const hardwareColorKey = opts.hardwareColorKey || 'dark';
 
   const defs = makeSVG('defs');
   const grad = makeSVG('linearGradient', {
@@ -74,7 +76,7 @@
     });
     g.appendChild(glassRect);
 
-    placeGrommetsRect(g, widthCm, heightCm, scale, FRAME_CM, grommetStepCm);
+    placeGrommetsRect(g, widthCm, heightCm, scale, FRAME_CM, grommetStepCm, hardwareSides, hardwareColorKey);
 
     if (skirtPx > 0) {
       const skirt = makeSVG('rect', {
@@ -149,7 +151,7 @@
     });
     g.appendChild(path);
 
-    placeGrommetsPath(g, points, grommetStepPx, scale);
+    placeGrommetsPath(g, points, grommetStepPx, scale, hardwareColorKey);
   }
 
   if (skirtPx > 0) {

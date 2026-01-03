@@ -1,8 +1,22 @@
-function formatCmLabel(valueCm) {
+﻿function formatCmLabel(valueCm) {
   if (!isFinite(valueCm)) return '';
   const rounded = Math.round(valueCm * 10) / 10;
-  return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)} см`;
+  return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)} cm`;
 }
+
+const FALLBACK_HARDWARE_COLORS = {
+  dark: { fill: '#f8fafc', stroke: '#111827', accent: '#0f172a' },
+  white: { fill: '#ffffff', stroke: '#cbd5e1', accent: '#94a3b8' },
+  brown: { fill: '#f5ebe3', stroke: '#4b3626', accent: '#6b4b32' }
+};
+
+function resolveHardwareColorMeta(key) {
+  if (typeof getHardwareColorMeta === 'function') {
+    return getHardwareColorMeta(key);
+  }
+  return FALLBACK_HARDWARE_COLORS[key] || FALLBACK_HARDWARE_COLORS.dark;
+}
+
 
 function addGrommetLabel(g, x, y, text, opts = {}) {
   const anchor = opts.anchor || 'middle';
@@ -35,9 +49,12 @@ function addGrommetLabel(g, x, y, text, opts = {}) {
   g.appendChild(label);
 }
 
-function placeGrommetsPath(g, points, stepPx, scale) {
+function placeGrommetsPath(g, points, stepPx, scale, hardwareColorKey) {
   const r = 4;
   const labelCache = new Set();
+  const colorMeta = resolveHardwareColorMeta(hardwareColorKey || 'dark');
+  const fill = colorMeta.fill || '#ffffff';
+  const stroke = colorMeta.stroke || '#334155';
 
   for (let i = 0; i < points.length; i++) {
     const p1 = points[i];
@@ -61,8 +78,8 @@ function placeGrommetsPath(g, points, stepPx, scale) {
           cx: x,
           cy: y,
           r,
-          fill: '#ffffff',
-          stroke: '#334155',
+          fill,
+          stroke,
           'stroke-width': 1.3
         })
       );
@@ -96,7 +113,7 @@ function placeGrommetsPath(g, points, stepPx, scale) {
   }
 }
 
-function placeGrommetsRect(g, widthCm, heightCm, scale, frameCm, targetStepCm) {
+function placeGrommetsRect(g, widthCm, heightCm, scale, frameCm, targetStepCm, hardwareSides = {}, hardwareColorKey = 'dark') {
   const TOP_OFFSET_CM = 2.5;
   const BOTTOM_OFFSET_CM = 5;
   const SIDE_TOP_OFFSET_CM = 2.5;
@@ -115,6 +132,18 @@ function placeGrommetsRect(g, widthCm, heightCm, scale, frameCm, targetStepCm) {
   const bottomLabelY = bottomY - framePx * 0.8;
   const leftLabelX = leftX + framePx * 1;
   const rightLabelX = rightX - framePx * 1;
+
+  const colorMeta = resolveHardwareColorMeta(hardwareColorKey || 'dark');
+  const stroke = colorMeta.stroke || '#1f2937';
+  const fill = colorMeta.fill || '#ffffff';
+  const accent = colorMeta.accent || stroke;
+
+  const sideHardware = {
+    top: hardwareSides.top || 'grommet',
+    bottom: hardwareSides.bottom || 'strap',
+    left: hardwareSides.left || 'strap',
+    right: hardwareSides.right || 'strap'
+  };
 
   function labelTop(xPx) {
     addGrommetLabel(g, xPx, topLabelY, formatCmLabel(xPx / scale));
@@ -162,80 +191,143 @@ function placeGrommetsRect(g, widthCm, heightCm, scale, frameCm, targetStepCm) {
         cx: xPx,
         cy: yPx,
         r,
-        fill: '#ffffff',
-        stroke: '#1f2937',
+        fill,
+        stroke,
         'stroke-width': 1.5
       })
     );
   }
 
-  function drawBracket(xPx, yPx) {
+  function drawRotary(xPx, yPx, angle = 0) {
     const w = framePx * 0.9;
-    const h = framePx * 1.1;
-
+    const h = framePx * 0.55;
     const rect = makeSVG('rect', {
       x: xPx - w / 2,
       y: yPx - h / 2,
       width: w,
       height: h,
-      rx: h * 0.3,
-      ry: h * 0.3,
-      fill: '#e5e7eb',
-      stroke: '#4b5563',
+      rx: h * 0.4,
+      ry: h * 0.4,
+      fill,
+      stroke,
       'stroke-width': 1
     });
+    if (angle) rect.setAttribute('transform', `rotate(${angle} ${xPx} ${yPx})`);
     g.appendChild(rect);
 
     g.appendChild(
       makeSVG('circle', {
         cx: xPx,
         cy: yPx,
-        r: w * 0.25,
+        r: h * 0.25,
+        fill: accent,
+        stroke,
+        'stroke-width': 0.8
+      })
+    );
+  }
+
+  function drawLag(xPx, yPx, angle = 0) {
+    const len = framePx * 0.9;
+    const grp = makeSVG('g', angle ? { transform: `rotate(${angle} ${xPx} ${yPx})` } : {});
+    grp.appendChild(
+      makeSVG('line', {
+        x1: xPx - len / 2,
+        y1: yPx,
+        x2: xPx + len / 2,
+        y2: yPx,
+        stroke: accent,
+        'stroke-width': 2,
+        'stroke-linecap': 'round'
+      })
+    );
+    grp.appendChild(
+      makeSVG('line', {
+        x1: xPx,
+        y1: yPx - len / 2,
+        x2: xPx,
+        y2: yPx + len / 2,
+        stroke: accent,
+        'stroke-width': 2,
+        'stroke-linecap': 'round'
+      })
+    );
+    g.appendChild(grp);
+  }
+
+  function drawStrap(xPx, yPx, angle = 0) {
+    const w = framePx * 1.2;
+    const h = framePx * 0.45;
+    const rect = makeSVG('rect', {
+      x: xPx - w / 2,
+      y: yPx - h / 2,
+      width: w,
+      height: h,
+      rx: h * 0.4,
+      ry: h * 0.4,
+      fill,
+      stroke,
+      'stroke-width': 1
+    });
+    if (angle) rect.setAttribute('transform', `rotate(${angle} ${xPx} ${yPx})`);
+    g.appendChild(rect);
+    g.appendChild(
+      makeSVG('circle', {
+        cx: xPx,
+        cy: yPx,
+        r: h * 0.3,
         fill: '#ffffff',
-        stroke: '#111827',
+        stroke: accent,
         'stroke-width': 1
       })
     );
   }
 
-  // верхние люверсы
-  drawGlover(leftX, topY);
-  labelTop(leftX);
-  drawGlover(rightX, topY);
-  labelTop(rightX);
+  function drawHardware(side, xPx, yPx) {
+    const type = sideHardware[side] || 'grommet';
+    const angle = side === 'left' || side === 'right' ? 90 : 0;
+    if (type === 'rotary') return drawRotary(xPx, yPx, angle);
+    if (type === 'lag') return drawLag(xPx, yPx, angle);
+    if (type === 'strap') return drawStrap(xPx, yPx, angle);
+    return drawGlover(xPx, yPx);
+  }
 
   const topXsCm = calcPositions(widthCm, TOP_OFFSET_CM, TOP_OFFSET_CM, targetStepCm);
-  topXsCm.forEach((xCm) => {
-    const xPx = xCm * scale;
-    drawGlover(xPx, topY);
-    labelTop(xPx);
-  });
-
-  // скобы по низу
   const bottomXsCm = calcPositions(widthCm, BOTTOM_OFFSET_CM, BOTTOM_OFFSET_CM, targetStepCm);
-  bottomXsCm.forEach((xCm) => {
-    const xPx = xCm * scale;
-    drawBracket(xPx, bottomY);
-    labelBottom(xPx);
-  });
-
-  // боковые стороны
   const sideMaxForGrommets = heightCm - BOTTOM_OFFSET_CM;
   const sideYsCm = calcPositions(sideMaxForGrommets, SIDE_TOP_OFFSET_CM, SIDE_TOP_OFFSET_CM, targetStepCm);
 
+  drawHardware('top', leftX, topY);
+  labelTop(leftX);
+  drawHardware('top', rightX, topY);
+  labelTop(rightX);
+
+  topXsCm.forEach((xCm) => {
+    const xPx = xCm * scale;
+    drawHardware('top', xPx, topY);
+    labelTop(xPx);
+  });
+
+  bottomXsCm.forEach((xCm) => {
+    const xPx = xCm * scale;
+    drawHardware('bottom', xPx, bottomY);
+    labelBottom(xPx);
+  });
+
   sideYsCm.forEach((yCm) => {
     const yPx = yCm * scale;
-    drawBracket(leftX, yPx);
+    drawHardware('left', leftX, yPx);
     labelLeft(yPx);
-    drawBracket(rightX, yPx);
+    drawHardware('right', rightX, yPx);
     labelRight(yPx);
   });
 
   const cornerBracketYcm = heightCm - BOTTOM_OFFSET_CM;
   const cornerBracketYpx = cornerBracketYcm * scale;
 
-  drawBracket(leftX, cornerBracketYpx);
+  drawHardware('bottom', leftX, cornerBracketYpx);
   labelBottom(leftX);
-  drawBracket(rightX, cornerBracketYpx);
+  drawHardware('bottom', rightX, cornerBracketYpx);
   labelBottom(rightX);
 }
+

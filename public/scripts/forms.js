@@ -209,6 +209,54 @@ function initMount() {
       t.classList.toggle('toggle--on');
     });
   });
+
+  const sideRows = Array.from(document.querySelectorAll('.side-hw-pills'));
+  if (sideRows.length) {
+    if (!windowState.hardwareSides) {
+      windowState.hardwareSides = { top: 'grommet', bottom: 'strap', left: 'strap', right: 'strap' };
+    }
+
+    const setSide = (side, val, withCalc = true) => {
+      windowState.hardwareSides[side] = val;
+      const row = sideRows.find((r) => r.dataset.side === side);
+      if (row) {
+        Array.from(row.querySelectorAll('.pill')).forEach((pill) => {
+          pill.classList.toggle('pill--active', pill.dataset.hw === val);
+        });
+      }
+      if (withCalc && typeof calcSoftWindow === 'function') calcSoftWindow();
+    };
+
+    sideRows.forEach((row) => {
+      const side = row.dataset.side;
+      const pills = Array.from(row.querySelectorAll('.pill'));
+      pills.forEach((p) => {
+        p.addEventListener('click', () => setSide(side, p.dataset.hw || 'grommet'));
+      });
+
+      const initial = windowState.hardwareSides[side] || (pills[0] && pills[0].dataset.hw) || 'grommet';
+      setSide(side, initial, false);
+    });
+  }
+
+  const hwColorPills = Array.from(document.querySelectorAll('#hardware-color-pills .pill'));
+  if (hwColorPills.length) {
+    const setHwColor = (pill, withCalc = true) => {
+      hwColorPills.forEach((x) => x.classList.toggle('pill--active', x === pill));
+      windowState.hardwareColor = pill.dataset.color || 'dark';
+      if (withCalc && typeof calcSoftWindow === 'function') calcSoftWindow();
+    };
+
+    hwColorPills.forEach((pill) => {
+      pill.addEventListener('click', () => setHwColor(pill));
+    });
+
+    const active =
+      hwColorPills.find((p) => p.dataset.color === windowState.hardwareColor) ||
+      hwColorPills.find((p) => p.classList.contains('pill--active')) ||
+      hwColorPills[0];
+    if (active) setHwColor(active, false);
+  }
 }
 
 function initSkirtPills() {

@@ -14,6 +14,16 @@ function getEdgingColorMeta(key) {
   return EDGING_COLORS[key] || EDGING_COLORS[DEFAULT_EDGING_COLOR];
 }
 
+const HARDWARE_COLORS = {
+  dark: { label: 'Графит', fill: '#f8fafc', stroke: '#111827', accent: '#0f172a' },
+  white: { label: 'Белый', fill: '#ffffff', stroke: '#cbd5e1', accent: '#94a3b8' },
+  brown: { label: 'Коричневый', fill: '#f5ebe3', stroke: '#4b3626', accent: '#6b4b32' }
+};
+
+function getHardwareColorMeta(key) {
+  return HARDWARE_COLORS[key] || HARDWARE_COLORS.dark;
+}
+
 let pricingData = null;
 let formsInitialized = false;
 let orderItems = [];
@@ -34,6 +44,8 @@ const windowState = {
   zippersCount: 0,
   zippersColor: DEFAULT_EDGING_COLOR,
   edgingColor: DEFAULT_EDGING_COLOR,
+  hardwareSides: { top: 'grommet', bottom: 'strap', left: 'strap', right: 'strap' },
+  hardwareColor: 'dark',
   patchPolygons: [],
   cutoutPolygons: []
 };

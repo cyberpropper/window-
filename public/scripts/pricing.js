@@ -14,6 +14,7 @@ async function calcSoftWindow() {
   const heightCm = num('height');
 
   const topDelta = shape === 'trapezoid' ? num('topDelta') : 0;
+  const archHeight = 0;
   
   const isAngled = shape === 'angledRight' || shape === 'angledLeft';
   const flatTopHeight = isAngled ? num('flatTopHeight') : 0;
@@ -116,6 +117,7 @@ async function calcSoftWindow() {
 
     drawShape(shape, widthCm, heightCm, {
       topDelta,
+      archHeight,
       flatTopHeight,
       grommetStep,
       skirtHeight,
@@ -126,10 +128,12 @@ async function calcSoftWindow() {
       zipperColor: windowState.zippersColor || 'black',
       edgingColor: payload.edgingColor,
       pocketSize,
-    patchPositions: windowState.patchPositions || [],
+      patchPositions: windowState.patchPositions || [],
       cutoutPositions: windowState.cutoutPositions || [],
       patchPolygons: windowState.patchPolygons || [],
-      cutoutPolygons: windowState.cutoutPolygons || []
+      cutoutPolygons: windowState.cutoutPolygons || [],
+      hardwareSides: windowState.hardwareSides || {},
+      hardwareColorKey: windowState.hardwareColor || 'dark'
     });
 
     if (typeof window.renderTempPolygonOverlay === 'function') {
@@ -152,6 +156,8 @@ async function calcSoftWindow() {
       edgingColor: payload.edgingColor,
       edgingColorLabel,
       pocketSize,
+      hardwareSides: windowState.hardwareSides || {},
+      hardwareColor: windowState.hardwareColor || 'dark',
       total: resp.total,
       materialName: materialName || payload.materialId
     };
