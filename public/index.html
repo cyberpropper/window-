@@ -192,13 +192,11 @@
                 <select id="material">
                   <option value="pvc08" data-price="1400" selected>ПВХ 0.8 мм</option>
                   <option value="pvc10" data-price="1600">ПВХ 1.0 мм</option>
-                  <option value="softglass" data-price="1900">Softglass</option>
+                  <option value="" data-price="1900">ПВХ</option>
                 </select>
                 <input id="edgingPricePerM" type="number" value="80">
                 <input id="grommetStep" type="number" value="30">
                 <input id="skirtHeightInput" type="number" value="0">
-                <input id="topDelta" type="number" value="0">
-                <input id="flatTopHeight" type="number" value="100">
               </div>
             </div>
             <div class="soft-drawing-bottom-scale"></div>
@@ -226,11 +224,11 @@
               </div>
               <div id="trapezoidControls" class="settings-card" style="margin-top:10px; display:none;">
                 <h2>Трапеция</h2><small>Насколько верх уже низа (см).</small>
-                <div class="settings-field"><label for="topDelta">Сужение верха, см</label><input id="topDelta" type="number" value="0"></div>
+                <div class="settings-field"><label for="topDelta">Сужение верха, см</label><input id="topDelta" type="number" min="0" step="1" value="0"></div>
               </div>
               <div id="angledRightControls" class="settings-card" style="margin-top:10px; display:none;">
                 <h2>Угловая форма</h2><small>Высота прямой части сверху, применимо для среза слева или справа.</small>
-                <div class="settings-field"><label for="flatTopHeight">Высота прямого участка, см</label><input id="flatTopHeight" type="number" value="100"></div>
+                <div class="settings-field"><label for="flatTopHeight">Высота прямого участка, см</label><input id="flatTopHeight" type="number" min="0" step="1" value="100"></div>
               </div>
             </div>
 
@@ -254,11 +252,6 @@
               <div class="settings-card">
                 <h2>Выбор фурнитуры:</h2>
                 <div class="hardware-list"><div style="padding:8px 10px;color:var(--text-soft);">Загрузка фурнитуры...</div></div>
-                <div class="hardware-footer">
-                  <div class="hardware-footer__label">Доп. настройки:</div>
-                  <div class="hardware-footer__value" id="hardware-selected-label">-</div>
-                </div>
-                <button class="hardware-advanced-toggle" id="hardware-advanced-toggle" type="button">Дополнительное меню настроек</button>
                 <div class="hardware-advanced" id="hardware-advanced"><small style="color:var(--text-soft);">.</small></div>
               </div>
             </div>
@@ -281,37 +274,45 @@
 
               <div class="settings-card" style="margin-top:10px;">
                 <h2>Крепеж по сторонам</h2>
-                <small>Выберите, где ставим поворотки, глухари, ремешки или люверсы.</small>
+                <small>Выберите тип крепежа для каждой стороны.</small>
                 <div class="side-hw-row" data-side="top">
                   <div class="side-hw-label">Верх</div>
                   <div class="slider-pills side-hw-pills" data-side="top">
-                    <div class="pill pill--active" data-hw="grommet">Глухари</div>
-                    <div class="pill" data-hw="rotary">Поворотки</div>
-                    <div class="pill" data-hw="strap">Ремешки</div>
+                    <div class="pill pill--active" data-hw="grommet10">Л10</div>
+                    <div class="pill" data-hw="bracket">Скоба с ремешком</div>
+                    <div class="pill" data-hw="plastic-rotary">Поворотка пластик</div>
+                    <div class="pill" data-hw="metal-rotary">Поворотка металл</div>
+                    <div class="pill" data-hw="french-lock">Французский замок</div>
                   </div>
                 </div>
                 <div class="side-hw-row" data-side="bottom">
                   <div class="side-hw-label">Низ</div>
                   <div class="slider-pills side-hw-pills" data-side="bottom">
-                    <div class="pill" data-hw="grommet">Глухари</div>
-                    <div class="pill" data-hw="rotary">Поворотки</div>
-                    <div class="pill pill--active" data-hw="strap">Ремешки</div>
+                    <div class="pill" data-hw="grommet10">Л10</div>
+                    <div class="pill pill--active" data-hw="bracket">Скоба с ремешком</div>
+                    <div class="pill" data-hw="plastic-rotary">Поворотка пластик</div>
+                    <div class="pill" data-hw="metal-rotary">Поворотка металл</div>
+                    <div class="pill" data-hw="french-lock">Французский замок</div>
                   </div>
                 </div>
                 <div class="side-hw-row" data-side="left">
                   <div class="side-hw-label">Левая</div>
                   <div class="slider-pills side-hw-pills" data-side="left">
-                    <div class="pill" data-hw="grommet">Глухари</div>
-                    <div class="pill" data-hw="rotary">Поворотки</div>
-                    <div class="pill pill--active" data-hw="strap">Ремешки</div>
+                    <div class="pill" data-hw="grommet10">Л10</div>
+                    <div class="pill pill--active" data-hw="bracket">Скоба с ремешком</div>
+                    <div class="pill" data-hw="plastic-rotary">Поворотка пластик</div>
+                    <div class="pill" data-hw="metal-rotary">Поворотка металл</div>
+                    <div class="pill" data-hw="french-lock">Французский замок</div>
                   </div>
                 </div>
                 <div class="side-hw-row" data-side="right">
                   <div class="side-hw-label">Правая</div>
                   <div class="slider-pills side-hw-pills" data-side="right">
-                    <div class="pill" data-hw="grommet">Глухари</div>
-                    <div class="pill" data-hw="rotary">Поворотки</div>
-                    <div class="pill pill--active" data-hw="strap">Ремешки</div>
+                    <div class="pill" data-hw="grommet10">Л10</div>
+                    <div class="pill pill--active" data-hw="bracket">Скоба с ремешком</div>
+                    <div class="pill" data-hw="plastic-rotary">Поворотка пластик</div>
+                    <div class="pill" data-hw="metal-rotary">Поворотка металл</div>
+                    <div class="pill" data-hw="french-lock">Французский замок</div>
                   </div>
                 </div>
               </div>

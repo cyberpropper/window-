@@ -1,5 +1,5 @@
-// Core state and shared helpers
-const ORDER_STORAGE_KEY = 'softglass_order_v1';
+﻿// Core state and shared helpers
+const ORDER_STORAGE_KEY = 'order_v1';
 const FRAME_CM = 5;
 const FRAME_THICKNESS = 14;
 
@@ -110,6 +110,34 @@ function makeArrow(x, y, dir) {
     'stroke-width': 1.4,
     'stroke-linecap': 'round'
   });
+}
+
+function clonePreviewSvgForOrder(id) {
+  const svg = document.getElementById('preview');
+  if (!svg) return '';
+  const clone = svg.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.removeAttribute('style');
+  clone.setAttribute('width', '360');
+  clone.setAttribute('height', '300');
+
+  const grad = clone.querySelector('#glassGrad');
+  if (grad) {
+    const uniqueId = `glassGrad-${id}`;
+    grad.setAttribute('id', uniqueId);
+    const nodes = clone.querySelectorAll('[fill],[stroke]');
+    nodes.forEach((node) => {
+      ['fill', 'stroke'].forEach((attr) => {
+        const val = node.getAttribute(attr);
+        if (!val) return;
+        if (val.includes('url(#glassGrad)')) {
+          node.setAttribute(attr, val.replace('url(#glassGrad)', `url(#${uniqueId})`));
+        }
+      });
+    });
+  }
+
+  return clone.outerHTML;
 }
 
 // "10,20; 30,40" -> [{xCm:10,yCm:20},{xCm:30,yCm:40}]
@@ -683,3 +711,4 @@ async function bootstrapApp() {
 }
 
 document.addEventListener('DOMContentLoaded', bootstrapApp);
+

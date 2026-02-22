@@ -9,11 +9,6 @@
       "id": "pvc10",
       "label": "PVC 1.0 mm",
       "pricePerM2": 1600
-    },
-    {
-      "id": "softglass",
-      "label": "Softglass",
-      "pricePerM2": 1900
     }
   ],
   "edging": {
@@ -53,23 +48,28 @@
   "hardware": [
     {
       "id": "grommet10",
-      "label": "Grommet 10 mm",
+      "label": "Л10 (люверс 10 мм)",
       "pricePerPiece": 44
     },
     {
       "id": "bracket",
-      "label": "Bracket with hook",
+      "label": "Скоба с ремешком",
       "pricePerPiece": 112
     },
     {
       "id": "metal-rotary",
-      "label": "Metal rotary latch",
+      "label": "Скоба поворотная металлическая",
       "pricePerPiece": 143
     },
     {
       "id": "plastic-rotary",
-      "label": "Plastic rotary latch",
+      "label": "Скоба поворотная пластиковая",
       "pricePerPiece": 95
+    },
+    {
+      "id": "french-lock",
+      "label": "Французский замок",
+      "pricePerPiece": 160
     }
   ],
   "extras": {

@@ -13,11 +13,19 @@ async function calcSoftWindow() {
   const widthCm = num('width');
   const heightCm = num('height');
 
-  const topDelta = shape === 'trapezoid' ? num('topDelta') : 0;
+  const rawTopDelta = shape === 'trapezoid' ? num('topDelta') : 0;
+  const topDelta = Math.max(0, Math.min(widthCm, rawTopDelta));
+  if (shape === 'trapezoid' && rawTopDelta !== topDelta && typeof setInputValue === 'function') {
+    setInputValue('topDelta', topDelta);
+  }
   const archHeight = 0;
   
   const isAngled = shape === 'angledRight' || shape === 'angledLeft';
-  const flatTopHeight = isAngled ? num('flatTopHeight') : 0;
+  const rawFlatTopHeight = isAngled ? num('flatTopHeight') : 0;
+  const flatTopHeight = Math.max(0, Math.min(heightCm, rawFlatTopHeight));
+  if (isAngled && rawFlatTopHeight !== flatTopHeight && typeof setInputValue === 'function') {
+    setInputValue('flatTopHeight', flatTopHeight);
+  }
 
   const materialSel = document.getElementById('material');
   const materialId = materialSel?.selectedOptions?.[0]?.value;

@@ -19,7 +19,7 @@
   const maxW = 520 - padding * 2;
   const maxH = 440 - padding * 2;
 
-  const fullHeightCm = heightCm; // scale по основному полотну, юбка рисуется отдельно
+  const fullHeightCm = heightCm; 
   const scale = Math.min(maxW / widthCm, maxH / (fullHeightCm || 1));
 
   if (typeof window !== 'undefined') {
@@ -97,7 +97,8 @@
   let points = [];
 
   if (shape === 'trapezoid') {
-    const topDelta = opts.topDelta || 0;
+    const rawTopDelta = Number(opts.topDelta) || 0;
+    const topDelta = Math.max(0, Math.min(widthCm, rawTopDelta));
     const topW = (widthCm - topDelta) * scale;
     const offset = (outerW - topW) / 2;
 
@@ -151,7 +152,7 @@
     });
     g.appendChild(path);
 
-    placeGrommetsPath(g, points, grommetStepPx, scale, hardwareColorKey);
+    placeGrommetsPath(g, points, grommetStepPx, scale, hardwareColorKey, hardwareSides);
   }
 
   if (skirtPx > 0) {
@@ -299,12 +300,12 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
   }
 
   if (hasZipper) {
-    const TAPE_WIDTH_CM = 4;      // С‚РѕР»С‰РёРЅР° РєР°Р¶РґРѕР№ Р»РµРЅС‚С‹ РјРѕР»РЅРёРё
-    const STRIPE_WIDTH_CM = 1;    // Р±РµР»Р°СЏ РїРѕР»РѕСЃР° РјРµР¶РґСѓ Р»РµРЅС‚Р°РјРё
+    const TAPE_WIDTH_CM = 4;      
+    const STRIPE_WIDTH_CM = 1;    
 
     const tapeWidth = TAPE_WIDTH_CM * scale;
     const stripeWidth = STRIPE_WIDTH_CM * scale;
-    const tapeFill = extrasFrameFill; // С†РІРµС‚ РєР°РЅС‚Р° РјРѕР»РЅРёРё СЃРѕРІРїР°РґР°РµС‚ СЃ С†РІРµС‚РѕРј РѕРєР°РЅС‚РѕРІРєРё РѕРєРЅР°
+    const tapeFill = extrasFrameFill; 
     const stripeFill = extrasColorKey === 'white' ? '#f1f5f9' : '#ffffff';
 
     const centerX = (innerLeft + innerRight) / 2;
@@ -312,7 +313,7 @@ function drawExtras(g, w, h, opts, scale, frameThickness) {
     const leftTapeX = centerX - stripeWidth / 2 - tapeWidth;
     const rightTapeX = centerX + stripeWidth / 2;
 
-    const yTop = 0; // С‚СЏРЅРµРј РјРѕР»РЅРёСЋ РІРѕ РІСЃСЋ РІС‹СЃРѕС‚Сѓ РѕРєРЅР°
+    const yTop = 0;
     const yBottom = h;
 
     g.appendChild(
@@ -393,7 +394,6 @@ function drawSizes(svg, widthCm, heightCm, scale, pad, frameThickness = 0) {
   const w = widthCm * scale;
   const h = heightCm * scale;
 
-  // Put dimension guides slightly outside the shape bounds, Photoshop-style
   const dimOffset = 14;
   const yDim = Math.max(12, pad - dimOffset);
   const xDim = Math.max(12, pad - dimOffset);

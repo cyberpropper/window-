@@ -16,8 +16,7 @@ const AUTH_SECRET = process.env.APP_AUTH_SECRET || 'calc-auth';
 const defaultPrices = {
   materials: [
     { id: 'pvc08', label: 'PVC 0.8 mm', pricePerM2: 1400 },
-    { id: 'pvc10', label: 'PVC 1.0 mm', pricePerM2: 1600 },
-    { id: 'softglass', label: 'Softglass', pricePerM2: 1900 }
+    { id: 'pvc10', label: 'PVC 1.0 mm', pricePerM2: 1600 }
   ],
   edging: {
     pricePerM: 80,
@@ -31,10 +30,11 @@ const defaultPrices = {
   laborPricePerM2: 300,
   grommetStepOptions: [20, 30, 40],
   hardware: [
-    { id: 'grommet10', label: 'Grommet 10 mm', pricePerPiece: 44 },
-    { id: 'bracket', label: 'Bracket with hook', pricePerPiece: 112 },
-    { id: 'metal-rotary', label: 'Metal rotary latch', pricePerPiece: 143 },
-    { id: 'plastic-rotary', label: 'Plastic rotary latch', pricePerPiece: 95 }
+    { id: 'grommet10', label: 'Л10 (люверс 10 мм)', pricePerPiece: 44 },
+    { id: 'bracket', label: 'Скоба с ремешком', pricePerPiece: 112 },
+    { id: 'metal-rotary', label: 'Скоба поворотная металлическая', pricePerPiece: 143 },
+    { id: 'plastic-rotary', label: 'Скоба поворотная пластиковая', pricePerPiece: 95 },
+    { id: 'french-lock', label: 'Французский замок', pricePerPiece: 160 }
   ],
   extras: {
     patchPrice: 80,
@@ -264,8 +264,8 @@ app.post('/api/calc', (req, res) => {
     const shape = body.shape || 'rect';
     const widthCm = Number(body.widthCm || body.width) || 0;
     const heightCm = Number(body.heightCm || body.height) || 0;
-    const topDelta = Number(body.topDelta) || 0;
-    const flatTopHeight = Number(body.flatTopHeight) || 0;
+    const rawTopDelta = Number(body.topDelta) || 0;
+    const rawFlatTopHeight = Number(body.flatTopHeight) || 0;
     const grommetStep =
       Number(body.grommetStep) ||
       pricing?.defaults?.grommetStep ||
@@ -275,6 +275,8 @@ app.post('/api/calc', (req, res) => {
     if (!widthCm || !heightCm) {
       return res.status(400).json({ error: 'Width and height are required' });
     }
+    const topDelta = Math.max(0, Math.min(widthCm, rawTopDelta));
+    const flatTopHeight = Math.max(0, Math.min(heightCm, rawFlatTopHeight));
 
     const materials = Array.isArray(pricing?.materials) ? pricing.materials : [];
     const materialId = body.materialId || body.material || (materials[0] && materials[0].id);

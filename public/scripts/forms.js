@@ -36,6 +36,23 @@ function initShapeCards() {
   });
 }
 
+function initShapeDimensionInputs() {
+  ['width', 'height', 'topDelta', 'flatTopHeight'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.boundCalc === '1') return;
+
+    el.dataset.boundCalc = '1';
+    const rerender = () => {
+      if (typeof calcSoftWindow === 'function') {
+        calcSoftWindow();
+      }
+    };
+
+    el.addEventListener('input', rerender);
+    el.addEventListener('change', rerender);
+  });
+}
+
 function initMaterialPills() {
   const pills = Array.from(document.querySelectorAll('#material-pills .pill'));
   const select = document.getElementById('material');
@@ -213,7 +230,7 @@ function initMount() {
   const sideRows = Array.from(document.querySelectorAll('.side-hw-pills'));
   if (sideRows.length) {
     if (!windowState.hardwareSides) {
-      windowState.hardwareSides = { top: 'grommet', bottom: 'strap', left: 'strap', right: 'strap' };
+      windowState.hardwareSides = { top: 'grommet10', bottom: 'bracket', left: 'bracket', right: 'bracket' };
     }
 
     const setSide = (side, val, withCalc = true) => {
@@ -231,10 +248,11 @@ function initMount() {
       const side = row.dataset.side;
       const pills = Array.from(row.querySelectorAll('.pill'));
       pills.forEach((p) => {
-        p.addEventListener('click', () => setSide(side, p.dataset.hw || 'grommet'));
+        p.addEventListener('click', () => setSide(side, p.dataset.hw || 'grommet10'));
       });
 
-      const initial = windowState.hardwareSides[side] || (pills[0] && pills[0].dataset.hw) || 'grommet';
+      const initial =
+        windowState.hardwareSides[side] || (pills[0] && pills[0].dataset.hw) || 'grommet10';
       setSide(side, initial, false);
     });
   }
@@ -595,6 +613,7 @@ function initSkirtModal() {
 function initForms() {
   initTabs();
   initShapeCards();
+  initShapeDimensionInputs();
   initMaterialPills();
   initEdgingPills();
   initHardware();
