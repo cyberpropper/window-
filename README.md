@@ -1,35 +1,20 @@
 # window++
 
-Небольшое Node.js/Express‑приложение: отдаёт SPA из `public/` и защищает её простейшей авторизацией по админскому логину/паролю через JWT‑куку.
+Single-page calculator for soft windows powered by Node.js/Express. Static assets live in `public/`; pricing and credentials are kept in JSON files under `data/`.
 
-## Быстрый старт
-- Требуется Node.js 18+ и npm.
-- Установить зависимости: `npm install`.
-- Создать `.env` (см. ниже), затем запустить: `npm start`.
-- Приложение поднимется на `http://localhost:4000` (порт можно сменить переменной `PORT`).
+## Getting started
+- Node.js 18+.
+- Install deps: `npm install`.
+- Run dev server: `npm start` (honours `PORT`, defaults to `4000`).
 
-## Переменные окружения
-Создайте файл `.env` в корне со значениями:
-```
-ADMIN_LOGIN=admin
-ADMIN_PASS_HASH=$2b$10$... # bcrypt‑хеш пароля
-JWT_SECRET=change_me
-PORT=4000
-NODE_ENV=development
-```
-- Хеш пароля можно получить командой:  
-  `node -e "console.log(require('bcryptjs').hashSync('MY_PASSWORD', 10))"`
-- `JWT_SECRET` лучше заменить на собственную случайную строку.
+## Data storage
+- `data/prices.json` — materials, labor, edging, hardware and extras. This file is read by the UI and can be edited through the built-in JSON editor.
+- `data/secrets.json` — stores `priceEditorPassword` (default: `changeme`). Update it via the API or the editor UI.
 
-## Как работает авторизация
-- `POST /api/login` — принимает `{ login, pass }`. При успехе кладёт httpOnly‑куку `sid` (JWT) на 8 часов и возвращает `{ ok: true }`.
-- `GET /api/status` — проверяет куку, валидирует JWT и текущую сессию, отвечает `{ ok: true, user }`.
-- В памяти держится только один активный `sessionId`: новый логин обнуляет предыдущую сессию.
+## API
+- `GET /api/prices` — returns JSON pricing data from `data/prices.json`.
+- `POST /api/prices` — body `{ data, password }`; saves `data` into `data/prices.json` when `password` matches `priceEditorPassword`.
+- `POST /api/prices/password` — body `{ currentPassword, newPassword }`; updates `priceEditorPassword` in `data/secrets.json`.
+- `POST /api/calc` — body with window options (shape, widthCm, heightCm, materialId, edgingPricePerM, grommetStep, extras...) and returns calculated totals. Frontend uses this endpoint so расчёты и прайсы остаются на сервере.
 
-## Структура
-- `server.js` — сервер, статика и API авторизации.
-- `public/` — фронтенд (SPA‑калькулятор).
-- `.env` — ваши секреты и настройки.
-
-## Скрипты npm
-- `npm start` — запускает сервер (`node server.js`).
+No login is required to use the calculator. The password only protects the price editor endpoint.
